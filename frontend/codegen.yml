@@ -1,0 +1,12 @@
+schema: http://localhost:3001/graphql
+documents: 'graphql/**/*.graphql'
+generates:
+  graphql/generated/types.ts:
+    plugins:
+      - typescript
+      - typescript-operations
+      - typescript-urql
+    config:
+      withHooks: true
+      withComponent: false
+      skipTypename: false

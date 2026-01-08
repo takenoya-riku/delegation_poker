@@ -5,6 +5,14 @@ Rails.application.routes.draw do
   # Can be used by uptime monitors and load balancers.
   get "up" => "rails/health#show", as: :rails_health_check
 
+  # GraphQL endpoint
+  post "/graphql", to: "graphql#execute"
+
+  # GraphiQL IDE (development only)
+  if Rails.env.development?
+    mount GraphiQL::Rails::Engine, at: "/graphiql", graphql_path: "/graphql"
+  end
+
   # API routes will be defined here
   # namespace :api do
   #   namespace :v1 do

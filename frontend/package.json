@@ -4,6 +4,8 @@
   "type": "module",
   "scripts": {
     "build": "nuxt build",
+    "codegen": "graphql-codegen --config codegen.yml",
+    "codegen:watch": "graphql-codegen --config codegen.yml --watch",
     "dev": "nuxt dev --port 8088",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
@@ -11,9 +13,15 @@
   },
   "dependencies": {
     "@nuxt/devtools": "latest",
+    "@urql/vue": "^2.0.0",
+    "graphql": "^16.8.1",
     "nuxt": "^3.13.0"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "^5.0.2",
+    "@graphql-codegen/typescript": "^4.0.1",
+    "@graphql-codegen/typescript-operations": "^4.2.0",
+    "@graphql-codegen/typescript-urql": "^4.0.1",
     "@nuxtjs/tailwindcss": "^6.12.1"
   }
 }

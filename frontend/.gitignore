@@ -6,6 +6,9 @@
 .cache
 dist
 
+# GraphQL generated files
+graphql/generated/
+
 # Node dependencies
 node_modules
 

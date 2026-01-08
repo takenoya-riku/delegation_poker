@@ -72,11 +72,76 @@ npm run dev
 
 - APIエンドポイント: `http://localhost:3001`
 - ヘルスチェック: `http://localhost:3001/up`
+- GraphQLエンドポイント: `http://localhost:3001/graphql`
+- GraphiQL IDE: `http://localhost:3001/graphiql` (開発環境のみ)
 
 ### フロントエンド（Nuxt 3）
 
 - 開発サーバー: `http://localhost:8088`
 - APIベースURLは環境変数`NUXT_PUBLIC_API_BASE_URL`で設定されます
+
+## GraphQL
+
+このプロジェクトはGraphQLを使用しています。
+
+### バックエンド（Rails）
+
+GraphQLスキーマは`backend/app/graphql/`ディレクトリに定義されています。
+
+- `delegation_poker_schema.rb`: メインスキーマ
+- `types/query_type.rb`: クエリ定義
+- `types/mutation_type.rb`: ミューテーション定義
+
+### フロントエンド（Nuxt）
+
+urqlを使用してGraphQLに接続します。
+
+#### GraphQL Code Generator
+
+スキーマからTypeScriptの型を自動生成します：
+
+```bash
+cd frontend
+npm run codegen
+```
+
+ウォッチモードで実行する場合：
+
+```bash
+npm run codegen:watch
+```
+
+生成された型は`frontend/graphql/generated/types.ts`に出力されます。
+
+#### GraphQLクエリの作成
+
+`frontend/graphql/`ディレクトリに`.graphql`ファイルを作成してください。
+
+例: `frontend/graphql/test.query.graphql`
+```graphql
+query TestQuery {
+  testField
+}
+```
+
+#### urqlの使用例
+
+```vue
+<script setup lang="ts">
+import { useQuery } from '@urql/vue'
+import { TestQueryDocument } from '~/graphql/generated/types'
+
+const { data, fetching, error } = useQuery({
+  query: TestQueryDocument
+})
+</script>
+
+<template>
+  <div v-if="fetching">Loading...</div>
+  <div v-else-if="error">Error: {{ error.message }}</div>
+  <div v-else>{{ data?.testField }}</div>
+</template>
+```
 
 ## Docker Composeコマンド
 
@@ -106,11 +171,18 @@ docker-compose exec rails rails db:reset
 delegation_poker/
 ├── backend/              # Rails 8 APIアプリケーション
 │   ├── app/
+│   │   ├── graphql/      # GraphQLスキーマとタイプ定義
+│   │   ├── controllers/
+│   │   └── ...
 │   ├── config/
 │   ├── Dockerfile
 │   └── Gemfile
 ├── frontend/            # Nuxt 3アプリケーション
+│   ├── graphql/         # GraphQLクエリ/ミューテーションファイル
+│   │   └── generated/   # Code Generatorで生成された型定義
+│   ├── plugins/         # Nuxtプラグイン（urqlクライアントなど）
 │   ├── app.vue
+│   ├── codegen.yml      # GraphQL Code Generator設定
 │   ├── nuxt.config.ts
 │   └── package.json
 ├── docker-compose.yml   # Docker Compose設定
