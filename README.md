@@ -1,0 +1,136 @@
+# Delegation Poker
+
+Rails 8 API + Nuxt 3 + PostgreSQL アプリケーション
+
+## プロジェクト構成
+
+- **バックエンド**: Rails 8 (APIモード)
+- **フロントエンド**: Nuxt 3
+- **データベース**: PostgreSQL 15
+
+バックエンドとデータベースはDocker Composeで管理され、フロントエンドはローカルで実行します。
+
+## セットアップ
+
+### 1. 環境変数の設定
+
+プロジェクトルートに`.env`ファイルを作成し、以下の内容を設定してください：
+
+```bash
+# PostgreSQL設定
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=delegation_poker_development
+POSTGRES_PORT=5433
+
+# Rails設定
+RAILS_ENV=development
+RAILS_PORT=3001
+
+# Nuxt設定（フロントエンド用）
+NUXT_PUBLIC_API_BASE_URL=http://localhost:3001
+
+# CORS設定（Rails用）
+FRONTEND_URL=http://localhost:8088
+```
+
+`.env.example`を参考にしてください。
+
+### 2. バックエンドのセットアップ
+
+#### Docker Composeで起動
+
+```bash
+docker-compose up -d
+```
+
+初回起動時は、データベースのマイグレーションを実行してください：
+
+```bash
+docker-compose exec rails rails db:create db:migrate
+```
+
+#### バックエンドのログ確認
+
+```bash
+docker-compose logs -f rails
+```
+
+### 3. フロントエンドのセットアップ
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+フロントエンドは`http://localhost:8088`でアクセスできます。
+
+## 開発
+
+### バックエンド（Rails API）
+
+- APIエンドポイント: `http://localhost:3001`
+- ヘルスチェック: `http://localhost:3001/up`
+
+### フロントエンド（Nuxt 3）
+
+- 開発サーバー: `http://localhost:8088`
+- APIベースURLは環境変数`NUXT_PUBLIC_API_BASE_URL`で設定されます
+
+## Docker Composeコマンド
+
+```bash
+# サービス起動
+docker-compose up -d
+
+# サービス停止
+docker-compose down
+
+# ログ確認
+docker-compose logs -f
+
+# Railsコンソール起動
+docker-compose exec rails rails console
+
+# データベースマイグレーション
+docker-compose exec rails rails db:migrate
+
+# データベースリセット
+docker-compose exec rails rails db:reset
+```
+
+## ディレクトリ構造
+
+```
+delegation_poker/
+├── backend/              # Rails 8 APIアプリケーション
+│   ├── app/
+│   ├── config/
+│   ├── Dockerfile
+│   └── Gemfile
+├── frontend/            # Nuxt 3アプリケーション
+│   ├── app.vue
+│   ├── nuxt.config.ts
+│   └── package.json
+├── docker-compose.yml   # Docker Compose設定
+├── .env.example         # 環境変数テンプレート
+└── README.md
+```
+
+## トラブルシューティング
+
+### PostgreSQL接続エラー
+
+`.env`ファイルのデータベース設定を確認してください。Docker Composeのサービス名`postgres`が`DATABASE_HOST`として使用されます。
+
+### CORSエラー
+
+`backend/config/initializers/cors.rb`でフロントエンドのURLが許可されているか確認してください。デフォルトでは`http://localhost:8088`が許可されています。環境変数`FRONTEND_URL`で変更できます。
+
+### ポート競合
+
+`.env`ファイルでポート番号を変更できます：
+- `RAILS_PORT`: Rails APIのポート（デフォルト: 3001）
+- `POSTGRES_PORT`: PostgreSQLのポート（デフォルト: 5433）
+- フロントエンドのポートは`frontend/package.json`の`dev`スクリプトで`--port`オプションを指定して変更できます（デフォルト: 8088）
