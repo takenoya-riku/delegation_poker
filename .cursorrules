@@ -1,0 +1,30 @@
+# Cursor Rules for Delegation Poker Project
+
+## ドキュメント管理
+
+- 重要な変更は必ずドキュメントを更新する
+- コードコメントは「なぜ」を説明する（「何を」はコードが示す）
+- 複雑なロジックには詳細なコメントを追加
+- README.mdは最新の状態を保つ
+
+## コードスタイル
+
+- Ruby: RuboCopの推奨スタイルに従う
+- TypeScript/JavaScript: ESLintの推奨スタイルに従う
+- GraphQL: スキーマは明確で一貫性のある命名規則を使用
+
+## テスト
+
+- 新しい機能には必ずテストを追加
+- テスト戦略: Request Spec（統合テスト）、GraphQL結合テスト、単体テストの3層構造
+- Request Spec: ControllerをHTTP経由でテスト（`spec/requests/`）
+- GraphQL結合テスト: ResolverやMutationをスキーマ直接実行でテスト（`spec/graphql/`）
+- 単体テスト: モデル、サービスオブジェクトなどのpublicメソッドをテスト（`spec/models/`, `spec/services/`）
+- テストファイル内の`it`と`context`のテキストは全て日本語で記述
+- GraphQLテストは`post_graphql`ヘルパー（Request Spec）または`execute_graphql`ヘルパー（結合テスト）を使用
+
+## Git
+
+- コミットメッセージは明確で説明的に
+- 大きな変更は複数のコミットに分割
+- ドキュメントの変更もコミットに含める

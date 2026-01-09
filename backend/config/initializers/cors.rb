@@ -5,6 +5,8 @@
 
 # Read more: https://github.com/cyu/rack-cors
 
+# CORS設定
+# すべての環境でCORSを有効化
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
     origins ENV.fetch("FRONTEND_URL", "http://localhost:8088")
