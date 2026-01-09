@@ -7,6 +7,7 @@
 ```
 docs/
 ├── README.md              # このファイル（ドキュメント管理ガイド）
+├── specification.md       # アプリケーション仕様書
 ├── architecture/          # アーキテクチャ設計ドキュメント
 │   ├── backend.md         # バックエンド設計
 │   ├── frontend.md        # フロントエンド設計

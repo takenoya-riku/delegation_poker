@@ -246,6 +246,7 @@ delegation_poker/
 
 詳細なドキュメントは`docs/`ディレクトリを参照してください：
 
+- [アプリケーション仕様書](docs/specification.md)
 - [ドキュメント管理ガイド](docs/README.md)
 - [テストガイド](docs/development/testing.md)
 - [GraphQL API仕様](backend/app/graphql/README.md)
