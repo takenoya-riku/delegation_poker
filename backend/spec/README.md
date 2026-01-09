@@ -6,23 +6,24 @@
 
 このプロジェクトでは、以下の3層のテスト戦略を採用しています：
 
-1. **Request Spec（統合テスト）**: ControllerをHTTP経由でテスト
-2. **GraphQL結合テスト**: ResolverやMutationをスキーマ直接実行でテスト
+1. **Request Spec（統合テスト）**: ControllerをHTTP経由でテスト（Controllerの責務のみ）
+2. **GraphQL結合テスト**: **全ての**ResolverやMutationをスキーマ直接実行でテスト
 3. **単体テスト**: モデル、サービスオブジェクトなどのpublicメソッドをテスト
 
-**注意**: テストファイル内の`it`と`context`のテキストは全て日本語で記述します。
+**注意**: 
+- テストファイル内の`it`と`context`のテキストは全て日本語で記述します
+- Request Specでは具体的なGraphQLロジック（mutationやresolver）のテストは行いません
+- GraphQL結合テストで全てのmutationとresolverをテストします
 
 ## ディレクトリ構造
 
 ```
 spec/
-├── requests/              # Request specs（HTTP経由のテスト）
+├── requests/              # Request specs（HTTP経由のテスト、Controllerのみ）
 │   └── graphql_controller_spec.rb
-├── graphql/               # GraphQL結合テスト
+├── graphql/               # GraphQL結合テスト（全てのmutationとresolver）
 │   ├── queries/           # Query resolverのテスト
-│   │   └── query_type_spec.rb
 │   └── mutations/         # Mutation resolverのテスト
-│       └── mutation_type_spec.rb
 ├── models/                # モデルの単体テスト
 ├── services/              # サービスオブジェクトの単体テスト
 ├── support/               # テストヘルパーと設定

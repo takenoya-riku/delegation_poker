@@ -1,0 +1,13 @@
+mutation JoinRoom($code: String!, $name: String!) {
+  joinRoom(code: $code, name: $name) {
+    participant {
+      id
+      name
+    }
+    room {
+      id
+      code
+    }
+    errors
+  }
+}

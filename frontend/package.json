@@ -15,7 +15,8 @@
     "@nuxt/devtools": "latest",
     "@urql/vue": "^2.0.0",
     "graphql": "^16.8.1",
-    "nuxt": "^3.13.0"
+    "nuxt": "^3.13.0",
+    "urql": "^5.0.1"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^5.0.2",

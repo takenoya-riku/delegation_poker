@@ -1,0 +1,25 @@
+query Room($code: String!) {
+  room(code: $code) {
+    id
+    name
+    code
+    participants {
+      id
+      name
+    }
+    topics {
+      id
+      title
+      description
+      status
+      votes {
+        id
+        level
+        participant {
+          id
+          name
+        }
+      }
+    }
+  }
+}

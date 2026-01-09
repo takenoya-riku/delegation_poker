@@ -1,0 +1,6 @@
+class Participant < ApplicationRecord
+  belongs_to :room
+  has_many :votes, dependent: :destroy
+
+  validates :name, presence: true
+end

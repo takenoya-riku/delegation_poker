@@ -1,0 +1,9 @@
+mutation RevealTopic($topicId: ID!) {
+  revealTopic(topicId: $topicId) {
+    topic {
+      id
+      status
+    }
+    errors
+  }
+}

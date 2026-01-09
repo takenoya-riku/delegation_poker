@@ -18,20 +18,25 @@
 
 **場所**: `spec/requests/`
 
-ControllerをHTTP経由でテストします。エンドポイント全体の動作を検証します。
+ControllerをHTTP経由でテストします。**Controllerの責務のみをテスト**し、具体的なGraphQLロジック（mutationやresolver）のテストは行いません。
+
+**テスト内容**:
+- HTTPリクエストの処理
+- レスポンスのステータスコードと形式
+- パラメータのパース（変数の文字列/ハッシュ）
+- エラーハンドリング
 
 **使用ヘルパー**: `spec/support/graphql_helper.rb`
 
 ```ruby
 # spec/requests/graphql_controller_spec.rb
-RSpec.describe 'GraphQL API', type: :request do
-  context 'クエリが有効な場合' do
-    it 'testFieldクエリに対して成功レスポンスを返す' do
-      post_graphql(query: "{ testField }")
+RSpec.describe GraphqlController, type: :request do
+  describe 'POST /graphql' do
+    it '成功レスポンスを返す' do
+      post_graphql(query: "{ room(code: \"ABC123\") { id } }")
       
       expect(response).to have_http_status(:success)
-      json = graphql_response(response)
-      expect(json['data']['testField']).to eq('Hello World!')
+      expect(response.content_type).to include('application/json')
     end
   end
 end
@@ -46,34 +51,39 @@ docker compose exec api rspec spec/requests/
 
 **場所**: `spec/graphql/`
 
-ResolverやMutationをGraphQLスキーマを直接実行してテストします。HTTPレイヤーを経由せず、GraphQLのロジックを検証します。
+**全てのResolverとMutationをGraphQLスキーマを直接実行してテストします**。HTTPレイヤーを経由せず、GraphQLのロジックを検証します。
+
+**テスト対象**:
+- 全てのMutations（createRoom, joinRoom, addTopic, vote, revealTopic）
+- 全てのQueries（room）
 
 **使用ヘルパー**: `spec/support/graphql_schema_helper.rb`
 
 ```ruby
-# spec/graphql/queries/query_type_spec.rb
-RSpec.describe Types::QueryType, type: :graphql do
-  describe '#test_field' do
-    it '期待される文字列を返す' do
-      result = execute_graphql(query: "{ testField }")
-      
-      data = graphql_data(result)
-      expect(data['testField']).to eq('Hello World!')
-    end
+# spec/graphql/mutations/create_room_spec.rb
+RSpec.describe Mutations::CreateRoom, type: :graphql do
+  it 'ルームを作成する' do
+    result = execute_mutation(
+      mutation: "mutation { createRoom(name: \"Test\") { room { code } } }"
+    )
+    
+    data = graphql_data(result)
+    expect(data['createRoom']['room']['code']).to be_present
   end
 end
 ```
 
 ```ruby
-# spec/graphql/mutations/mutation_type_spec.rb
-RSpec.describe Types::MutationType, type: :graphql do
-  describe '#test_mutation' do
-    it '期待される文字列を返す' do
-      result = execute_mutation(mutation: "mutation { testMutation }")
-      
-      data = graphql_data(result)
-      expect(data['testMutation']).to eq('Test mutation response')
-    end
+# spec/graphql/queries/room_query_spec.rb
+RSpec.describe 'Room Query', type: :graphql do
+  it 'ルームコードでルーム情報を取得する' do
+    room = create(:room)
+    result = execute_graphql(
+      query: "query { room(code: \"#{room.code}\") { name } }"
+    )
+    
+    data = graphql_data(result)
+    expect(data['room']['name']).to eq(room.name)
   end
 end
 ```
@@ -88,6 +98,8 @@ docker compose exec api rspec spec/graphql/
 **場所**: `spec/models/`, `spec/services/`, など
 
 モデルやサービスオブジェクトのpublicメソッドを直接テストします。
+
+**重要**: **privateメソッドは検証しません**。privateメソッドはpublicメソッドを通じて間接的にテストされます。
 
 ```ruby
 # spec/models/user_spec.rb
@@ -175,15 +187,15 @@ docker compose exec api rspec spec/requests/graphql_controller_spec.rb:6
 ```ruby
 require 'rails_helper'
 
-RSpec.describe 'GraphQL API', type: :request do
+RSpec.describe GraphqlController, type: :request do
   describe 'POST /graphql' do
-    context 'クエリが有効な場合' do
-      it 'testFieldクエリに対して成功レスポンスを返す' do
-        post_graphql(query: "{ testField }")
+    context 'リクエストが有効な場合' do
+      it '成功レスポンスを返す' do
+        room = create(:room)
+        post_graphql(query: "{ room(code: \"#{room.code}\") { id } }")
         
         expect(response).to have_http_status(:success)
-        json = graphql_response(response)
-        expect(json['data']['testField']).to eq('Hello World!')
+        expect(response.content_type).to include('application/json')
       end
     end
   end
@@ -195,13 +207,28 @@ end
 ```ruby
 require 'rails_helper'
 
-RSpec.describe Types::QueryType, type: :graphql do
-  describe '#test_field' do
-    it '期待される文字列を返す' do
-      result = execute_graphql(query: "{ testField }")
+RSpec.describe Mutations::CreateRoom, type: :graphql do
+  describe '#resolve' do
+    it 'ルームを作成する' do
+      result = execute_mutation(
+        mutation: <<~GRAPHQL,
+          mutation CreateRoom($name: String!) {
+            createRoom(name: $name) {
+              room {
+                id
+                name
+                code
+              }
+              errors
+            }
+          }
+        GRAPHQL
+        variables: { name: 'Test Room' }
+      )
       
       data = graphql_data(result)
-      expect(data['testField']).to eq('Hello World!')
+      expect(data['createRoom']['room']['name']).to eq('Test Room')
+      expect(data['createRoom']['room']['code']).to be_present
     end
   end
 end
@@ -231,13 +258,11 @@ end
 
 ```
 spec/
-├── requests/              # Request specs（HTTP経由のテスト）
+├── requests/              # Request specs（HTTP経由のテスト、Controllerのみ）
 │   └── graphql_controller_spec.rb
-├── graphql/               # GraphQL結合テスト
+├── graphql/               # GraphQL結合テスト（全てのmutationとresolver）
 │   ├── queries/           # Query resolverのテスト
-│   │   └── query_type_spec.rb
 │   └── mutations/         # Mutation resolverのテスト
-│       └── mutation_type_spec.rb
 ├── models/                # モデルの単体テスト
 ├── services/               # サービスオブジェクトの単体テスト
 ├── support/               # テストヘルパーと設定

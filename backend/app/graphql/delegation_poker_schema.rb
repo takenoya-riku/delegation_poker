@@ -1,6 +1,6 @@
 class DelegationPokerSchema < GraphQL::Schema
-  mutation(Types::MutationType)
-  query(Types::QueryType)
+  mutation(Types::Root::MutationType)
+  query(Types::Root::QueryType)
 
   # For batch-loading (see https://graphql-ruby.org/dataloader/overview.html)
   use GraphQL::Dataloader

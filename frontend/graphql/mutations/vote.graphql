@@ -1,0 +1,9 @@
+mutation Vote($topicId: ID!, $participantId: ID!, $level: Int!) {
+  vote(topicId: $topicId, participantId: $participantId, level: $level) {
+    vote {
+      id
+      level
+    }
+    errors
+  }
+}

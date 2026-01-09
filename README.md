@@ -88,9 +88,19 @@ npm run dev
 
 GraphQLスキーマは`backend/app/graphql/`ディレクトリに定義されています。
 
+**ディレクトリ構造**:
 - `delegation_poker_schema.rb`: メインスキーマ
-- `types/query_type.rb`: クエリ定義
-- `types/mutation_type.rb`: ミューテーション定義
+- `mutations/`: 個別のミューテーション定義（`create_room.rb`, `join_room.rb`など）
+- `queries/`: 個別のクエリ定義（`room_query.rb`など）
+- `types/`: 型定義
+  - `base/`: ベースクラス（`base_object.rb`, `base_enum.rb`など）
+  - `root/`: ルート型（`query_type.rb`, `mutation_type.rb`）
+  - `objects/`: Object型（`room_type.rb`, `participant_type.rb`など）
+  - `enums/`: 列挙型（`delegation_level_enum.rb`など）
+
+**設計原則**: mutationsとqueriesディレクトリ配下の構成は、テスト（`spec/graphql/`）とAPI（`app/graphql/`）で一致させます。
+
+詳細は`backend/app/graphql/README.md`を参照してください。
 
 ### フロントエンド（Nuxt）
 
@@ -175,6 +185,7 @@ delegation_poker/
 ├── backend/              # Rails 8 APIアプリケーション
 │   ├── app/
 │   │   ├── graphql/      # GraphQLスキーマとタイプ定義
+│   │   ├── services/     # Serviceクラス（ビジネスロジック）
 │   │   ├── controllers/
 │   │   └── ...
 │   ├── config/
