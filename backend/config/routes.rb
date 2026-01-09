@@ -7,6 +7,8 @@ Rails.application.routes.draw do
 
   # GraphQL endpoint
   post "/graphql", to: "graphql#execute"
+  # GETリクエストも許可（開発環境のみ、GraphiQLなどで使用）
+  get "/graphql", to: "graphql#execute" if Rails.env.development?
 
   # GraphiQL IDE (development only)
   if Rails.env.development?

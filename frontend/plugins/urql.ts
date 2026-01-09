@@ -11,6 +11,13 @@ export default defineNuxtPlugin((nuxt) => {
     url: `${config.public.apiBaseUrl}/graphql`,
     exchanges: [cacheExchange, fetchExchange],
     requestPolicy: 'cache-and-network',
+    fetchOptions: {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    },
   })
 
   // @urql/vueのuseQuery/useMutation用にprovideClientを呼び出す

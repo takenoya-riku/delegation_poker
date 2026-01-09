@@ -9,7 +9,9 @@
 # すべての環境でCORSを有効化
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
-    origins ENV.fetch("FRONTEND_URL", "http://localhost:8088")
+    # 開発環境では複数のオリジンを許可
+    frontend_url = ENV.fetch("FRONTEND_URL", "http://localhost:8088")
+    origins frontend_url, "http://localhost:8088", "http://127.0.0.1:8088"
 
     resource "*",
       headers: :any,
