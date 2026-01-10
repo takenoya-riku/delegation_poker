@@ -1,0 +1,9 @@
+mutation StartOrganizing($topicId: ID!) {
+  startOrganizing(topicId: $topicId) {
+    topic {
+      id
+      status
+    }
+    errors
+  }
+}

@@ -38,18 +38,19 @@
         <ParticipantList :participants="room.participants" />
 
         <!-- フェーズに応じたコンポーネントを表示 -->
-        <div v-if="hasDraftTopics" class="animate-fade-in" style="animation-delay: 0.1s">
+        <!-- トピックが1つもない場合、またはdraftトピックがある場合に対象出しフォームを表示 -->
+        <div v-if="hasNoTopics || hasDraftTopics" class="animate-fade-in" style="animation-delay: 0.1s">
           <TopicDraftList
             :topics="room.topics"
             :room-id="room.id"
-            @refresh="refetch()"
+            @refresh="refetch"
           />
         </div>
 
         <div v-else-if="hasOrganizingTopics" class="animate-fade-in" style="animation-delay: 0.1s">
           <TopicOrganizeView
             :topics="room.topics"
-            @refresh="refetch()"
+            @refresh="refetch"
           />
         </div>
 
@@ -61,7 +62,7 @@
             :participant-id="currentParticipantId"
             :total-participants="room.participants.length"
             :style="{ animationDelay: `${0.1 + index * 0.05}s` }"
-            @refresh="refetch()"
+            @refresh="refetch"
           />
         </div>
       </div>
@@ -85,19 +86,25 @@ const { data, fetching, error, refetch } = useQuery({
 
 const room = computed(() => data.value?.room)
 
+const hasNoTopics = computed(() => {
+  return !room.value?.topics || room.value.topics.length === 0
+})
+
 const hasDraftTopics = computed(() => {
-  return room.value?.topics.some(t => t.status === 'draft') || false
+  return room.value?.topics.some(t => t.status === 'DRAFT' || t.status === 'draft') || false
 })
 
 const hasOrganizingTopics = computed(() => {
-  return room.value?.topics.some(t => t.status === 'organizing') || false
+  return room.value?.topics.some(t => t.status === 'ORGANIZING' || t.status === 'organizing') || false
 })
 
 const votingTopics = computed(() => {
   if (!room.value) return []
-  return room.value.topics.filter(t => 
-    ['current_voting', 'current_revealed', 'desired_voting', 'desired_revealed', 'completed'].includes(t.status)
-  )
+  return room.value.topics.filter(t => {
+    const status = t.status.toUpperCase()
+    return ['CURRENT_VOTING', 'CURRENT_REVEALED', 'DESIRED_VOTING', 'DESIRED_REVEALED', 'COMPLETED'].includes(status) ||
+           ['current_voting', 'current_revealed', 'desired_voting', 'desired_revealed', 'completed'].includes(t.status)
+  })
 })
 
 // ローカルストレージから参加者IDを取得（簡易実装）

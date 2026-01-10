@@ -55,18 +55,23 @@
       </div>
     </div>
 
-    <div v-if="draftTopics.length > 0" class="flex justify-end">
-      <button @click="handleStartOrganizing" class="btn-gradient-secondary px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105" :disabled="organizing">
-        <span v-if="organizing" class="loading loading-spinner loading-sm mr-2"></span>
-        {{ organizing ? '整理フェーズに移行中...' : '🚀 整理フェーズに進む' }}
-      </button>
+    <div v-if="draftTopics.length > 0" class="space-y-4">
+      <div v-if="organizeError" class="alert alert-error shadow-md animate-fade-in">
+        <span>{{ organizeError }}</span>
+      </div>
+      <div class="flex justify-end">
+        <button @click="handleStartOrganizing" class="btn-gradient-secondary px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105" :disabled="organizing">
+          <span v-if="organizing" class="loading loading-spinner loading-sm mr-2"></span>
+          {{ organizing ? '整理フェーズに移行中...' : '🚀 整理フェーズに進む' }}
+        </button>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { useMutation } from '@urql/vue'
-import { AddTopicDocument } from '~/graphql/generated/types'
+import { AddTopicDocument, StartOrganizingDocument } from '~/graphql/generated/types'
 
 const props = defineProps<{
   topics: Array<{
@@ -82,15 +87,17 @@ const emit = defineEmits<{
   refresh: []
 }>()
 
-const draftTopics = computed(() => props.topics.filter(t => t.status === 'draft'))
+const draftTopics = computed(() => props.topics.filter(t => t.status === 'DRAFT' || t.status === 'draft'))
 
 const newTopicTitle = ref('')
 const newTopicDescription = ref('')
 const adding = ref(false)
 const addError = ref('')
 const organizing = ref(false)
+const organizeError = ref('')
 
 const addTopicMutation = useMutation(AddTopicDocument)
+const startOrganizingMutation = useMutation(StartOrganizingDocument)
 
 const handleAddTopic = async () => {
   if (!newTopicTitle.value.trim()) return
@@ -98,29 +105,88 @@ const handleAddTopic = async () => {
   adding.value = true
   addError.value = ''
 
-  const result = await addTopicMutation.executeMutation({
-    roomId: props.roomId,
-    title: newTopicTitle.value.trim(),
-    description: newTopicDescription.value.trim() || null
-  })
+  try {
+    const result = await addTopicMutation.executeMutation({
+      roomId: props.roomId,
+      title: newTopicTitle.value.trim(),
+      description: newTopicDescription.value.trim() || null
+    })
 
-  if (result.data?.addTopic?.topic) {
-    newTopicTitle.value = ''
-    newTopicDescription.value = ''
-    emit('refresh')
-  } else {
-    addError.value = result.data?.addTopic?.errors?.[0] || 'トピックの追加に失敗しました'
+    // デバッグ用: 結果をログに出力
+    console.log('AddTopic result:', result)
+
+    if (result.error) {
+      console.error('GraphQL error:', result.error)
+      addError.value = result.error.message || 'トピックの追加に失敗しました'
+      adding.value = false
+      return
+    }
+
+    if (!result.data) {
+      console.error('No data in result:', result)
+      addError.value = 'レスポンスデータがありません'
+      adding.value = false
+      return
+    }
+
+    if (result.data?.addTopic?.topic) {
+      newTopicTitle.value = ''
+      newTopicDescription.value = ''
+      emit('refresh')
+    } else {
+      const errors = result.data?.addTopic?.errors || []
+      console.warn('AddTopic errors:', errors)
+      addError.value = errors.length > 0 ? errors[0] : 'トピックの追加に失敗しました'
+    }
+  } catch (error: any) {
+    console.error('Unexpected error:', error)
+    console.error('Error stack:', error?.stack)
+    // エラーの詳細を表示
+    const errorMessage = error?.message || error?.toString() || '予期しないエラーが発生しました'
+    addError.value = `エラー: ${errorMessage}`
+  } finally {
+    adding.value = false
   }
-
-  adding.value = false
 }
 
 const handleStartOrganizing = async () => {
+  if (draftTopics.value.length === 0) return
+
   organizing.value = true
-  // すべてのdraftトピックをorganizingに移行
-  // 実際の実装では、各トピックに対してorganizeTopic mutationを呼び出す必要があります
-  // ここでは簡易的にrefreshを発火
-  emit('refresh')
-  organizing.value = false
+  organizeError.value = ''
+
+  try {
+    // すべてのdraftトピックをorganizingに移行
+    const promises = draftTopics.value.map(topic =>
+      startOrganizingMutation.executeMutation({ topicId: topic.id })
+    )
+
+    const results = await Promise.all(promises)
+
+    // エラーをチェック
+    const errors = results
+      .map((result, index) => {
+        if (result.error) {
+          return `${draftTopics.value[index].title}: ${result.error.message}`
+        }
+        if (result.data?.startOrganizing?.errors?.length > 0) {
+          return `${draftTopics.value[index].title}: ${result.data.startOrganizing.errors[0]}`
+        }
+        return null
+      })
+      .filter(Boolean)
+
+    if (errors.length > 0) {
+      organizeError.value = errors.join(', ')
+    } else {
+      // 成功した場合はリフレッシュ
+      emit('refresh')
+    }
+  } catch (error: any) {
+    console.error('Unexpected error:', error)
+    organizeError.value = `エラー: ${error?.message || error?.toString() || '予期しないエラーが発生しました'}`
+  } finally {
+    organizing.value = false
+  }
 }
 </script>

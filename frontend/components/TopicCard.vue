@@ -12,7 +12,7 @@
       </div>
 
       <!-- 現状確認投票中 -->
-      <div v-if="topic.status === 'current_voting'" class="mt-6">
+      <div v-if="topic.status === 'CURRENT_VOTING' || topic.status === 'current_voting'" class="mt-6">
         <div class="mb-4">
           <h4 class="text-lg font-semibold text-gray-700 mb-2 flex items-center gap-2">
             <span class="text-2xl">📊</span>
@@ -39,7 +39,7 @@
       </div>
 
       <!-- 現状確認結果公開済み -->
-      <div v-else-if="topic.status === 'current_revealed'" class="mt-6">
+      <div v-else-if="topic.status === 'CURRENT_REVEALED' || topic.status === 'current_revealed'" class="mt-6">
         <div class="mb-4">
           <h4 class="text-lg font-semibold text-gray-700 mb-2 flex items-center gap-2">
             <span class="text-2xl">✅</span>
@@ -56,7 +56,7 @@
       </div>
 
       <!-- ありたい姿投票中 -->
-      <div v-else-if="topic.status === 'desired_voting'" class="mt-6">
+      <div v-else-if="topic.status === 'DESIRED_VOTING' || topic.status === 'desired_voting'" class="mt-6">
         <div class="mb-4">
           <h4 class="text-lg font-semibold text-gray-700 mb-2 flex items-center gap-2">
             <span class="text-2xl">🎯</span>
@@ -83,7 +83,7 @@
       </div>
 
       <!-- ありたい姿結果公開済みまたは完了 -->
-      <div v-else-if="topic.status === 'desired_revealed' || topic.status === 'completed'" class="mt-6 space-y-6">
+      <div v-else-if="topic.status === 'DESIRED_REVEALED' || topic.status === 'desired_revealed' || topic.status === 'COMPLETED' || topic.status === 'completed'" class="mt-6 space-y-6">
         <div>
           <h4 class="text-lg font-semibold text-gray-700 mb-3 flex items-center gap-2">
             <span class="text-2xl">📊</span>
@@ -133,6 +133,7 @@ const emit = defineEmits<{
 }>()
 
 const statusLabel = computed(() => {
+  const status = props.topic.status.toLowerCase()
   const labels: Record<string, string> = {
     draft: '対象出し',
     organizing: '整理中',
@@ -142,10 +143,11 @@ const statusLabel = computed(() => {
     desired_revealed: 'ありたい姿結果公開済み',
     completed: '完了'
   }
-  return labels[props.topic.status] || props.topic.status
+  return labels[status] || props.topic.status
 })
 
 const cardClass = computed(() => {
+  const status = props.topic.status.toLowerCase()
   const classes: Record<string, string> = {
     draft: 'border-2 border-gray-300 bg-gradient-to-br from-white to-gray-50',
     organizing: 'border-2 border-yellow-300 bg-gradient-to-br from-white to-yellow-50',
@@ -155,10 +157,11 @@ const cardClass = computed(() => {
     desired_revealed: 'border-2 border-indigo-300 bg-gradient-to-br from-white to-indigo-50',
     completed: 'border-2 border-gray-200 bg-gradient-to-br from-gray-50 to-white'
   }
-  return classes[props.topic.status] || 'border-2 border-gray-200'
+  return classes[status] || 'border-2 border-gray-200'
 })
 
 const badgeClass = computed(() => {
+  const status = props.topic.status.toLowerCase()
   const classes: Record<string, string> = {
     draft: 'badge-neutral',
     organizing: 'badge-warning',
@@ -168,19 +171,19 @@ const badgeClass = computed(() => {
     desired_revealed: 'badge-secondary',
     completed: 'badge-ghost'
   }
-  return classes[props.topic.status] || 'badge-outline'
+  return classes[status] || 'badge-outline'
 })
 
 const canRevealCurrent = computed(() => {
-  return props.topic.status === 'current_voting' && props.topic.allParticipantsVoted
+  return (props.topic.status === 'CURRENT_VOTING' || props.topic.status === 'current_voting') && props.topic.allParticipantsVoted
 })
 
 const canStartDesired = computed(() => {
-  return props.topic.status === 'current_revealed'
+  return props.topic.status === 'CURRENT_REVEALED' || props.topic.status === 'current_revealed'
 })
 
 const canRevealDesired = computed(() => {
-  return props.topic.status === 'desired_voting' && props.topic.allParticipantsVoted
+  return (props.topic.status === 'DESIRED_VOTING' || props.topic.status === 'desired_voting') && props.topic.allParticipantsVoted
 })
 
 const revealing = ref(false)

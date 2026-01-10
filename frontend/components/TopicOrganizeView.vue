@@ -101,7 +101,7 @@ const emit = defineEmits<{
   refresh: []
 }>()
 
-const organizingTopics = computed(() => props.topics.filter(t => t.status === 'organizing'))
+const organizingTopics = computed(() => props.topics.filter(t => t.status === 'ORGANIZING' || t.status === 'organizing'))
 
 const deleting = ref(false)
 const starting = ref(false)
