@@ -1,28 +1,36 @@
 <template>
-  <div class="space-y-4">
-    <div class="card bg-base-100 shadow-xl">
-      <div class="card-body">
-        <h2 class="card-title">対象の整理</h2>
-        <p class="text-sm text-gray-600">重複や類似の対象を統合・整理してください</p>
+  <div class="space-y-6 animate-fade-in">
+    <div class="card-modern border-2 border-yellow-300 bg-gradient-to-br from-white to-yellow-50 shadow-xl">
+      <div class="card-body p-6">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-white text-xl font-bold shadow-lg">
+            🔧
+          </div>
+          <h2 class="card-title text-2xl text-gray-800">対象の整理</h2>
+        </div>
+        <p class="text-sm text-gray-600 ml-16">重複や類似の対象を統合・整理してください</p>
       </div>
     </div>
 
-    <div v-if="organizingTopics.length === 0" class="alert alert-info">
-      <span>整理する対象がありません</span>
+    <div v-if="organizingTopics.length === 0" class="card-modern border-2 border-dashed border-yellow-300 bg-yellow-50 text-center py-12">
+      <span class="text-5xl mb-4 block">📋</span>
+      <p class="text-gray-600 font-medium">整理する対象がありません</p>
     </div>
 
     <div v-else class="space-y-4">
       <div
-        v-for="topic in organizingTopics"
+        v-for="(topic, index) in organizingTopics"
         :key="topic.id"
-        class="card bg-base-100 shadow"
+        class="card-modern border-2 border-yellow-200 bg-gradient-to-r from-white to-yellow-50 shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-[1.01] animate-fade-in"
+        :style="{ animationDelay: `${index * 0.05}s` }"
       >
-        <div class="card-body">
-          <h3 class="card-title text-lg">{{ topic.title }}</h3>
-          <p v-if="topic.description" class="text-sm text-gray-600">{{ topic.description }}</p>
-          <div class="card-actions justify-end mt-4">
-            <button @click="openEditModal(topic)" class="btn btn-sm btn-outline">編集</button>
-            <button @click="handleDelete(topic.id)" class="btn btn-sm btn-error" :disabled="deleting">
+        <div class="card-body p-5">
+          <h3 class="card-title text-xl text-gray-800 mb-2">{{ topic.title }}</h3>
+          <p v-if="topic.description" class="text-sm text-gray-600 mb-4">{{ topic.description }}</p>
+          <div class="card-actions justify-end">
+            <button @click="openEditModal(topic)" class="btn btn-sm px-4 py-2 rounded-lg bg-white border-2 border-gray-300 text-gray-700 hover:border-gray-400 hover:bg-gray-50 transition-all duration-300 shadow-md hover:shadow-lg">編集</button>
+            <button @click="handleDelete(topic.id)" class="btn btn-sm px-4 py-2 rounded-lg bg-gradient-to-r from-red-500 to-pink-500 text-white border-0 hover:from-red-600 hover:to-pink-600 transition-all duration-300 shadow-md hover:shadow-lg" :disabled="deleting">
+              <span v-if="deleting" class="loading loading-spinner loading-xs mr-1"></span>
               削除
             </button>
           </div>
@@ -31,38 +39,43 @@
     </div>
 
     <div v-if="organizingTopics.length > 0" class="flex justify-end">
-      <button @click="handleStartVoting" class="btn btn-primary" :disabled="starting">
-        {{ starting ? '投票フェーズに移行中...' : '現状確認投票に進む' }}
+      <button @click="handleStartVoting" class="btn-gradient px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105" :disabled="starting">
+        <span v-if="starting" class="loading loading-spinner loading-sm mr-2"></span>
+        {{ starting ? '投票フェーズに移行中...' : '📊 現状確認投票に進む' }}
       </button>
     </div>
 
     <!-- 編集モーダル -->
     <div v-if="editingTopic" class="modal modal-open">
-      <div class="modal-box">
-        <h3 class="font-bold text-lg mb-4">トピックを編集</h3>
+      <div class="modal-box bg-white shadow-2xl border-2 border-yellow-200 rounded-2xl">
+        <h3 class="font-bold text-xl mb-6 text-gray-800 flex items-center gap-2">
+          <span class="text-2xl">✏️</span>
+          トピックを編集
+        </h3>
         <div class="form-control mb-4">
           <label class="label">
-            <span class="label-text">タイトル</span>
+            <span class="label-text font-semibold text-gray-700">タイトル</span>
           </label>
           <input
             v-model="editTitle"
             type="text"
-            class="input input-bordered"
+            class="input input-bordered w-full focus:ring-2 focus:ring-yellow-400 transition-all duration-300"
             required
           />
         </div>
-        <div class="form-control mb-4">
+        <div class="form-control mb-6">
           <label class="label">
-            <span class="label-text">説明</span>
+            <span class="label-text font-semibold text-gray-700">説明</span>
           </label>
           <textarea
             v-model="editDescription"
-            class="textarea textarea-bordered"
+            class="textarea textarea-bordered w-full focus:ring-2 focus:ring-yellow-400 transition-all duration-300"
           ></textarea>
         </div>
         <div class="modal-action">
-          <button @click="closeEditModal" class="btn">キャンセル</button>
-          <button @click="handleUpdate" class="btn btn-primary" :disabled="updating">
+          <button @click="closeEditModal" class="btn px-6 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all duration-300 shadow-md">キャンセル</button>
+          <button @click="handleUpdate" class="btn-gradient px-6 py-2 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300" :disabled="updating">
+            <span v-if="updating" class="loading loading-spinner loading-sm mr-2"></span>
             {{ updating ? '更新中...' : '更新' }}
           </button>
         </div>

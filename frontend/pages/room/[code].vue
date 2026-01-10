@@ -1,46 +1,69 @@
 <template>
-  <div class="container mx-auto px-4 py-8">
-    <div v-if="fetching" class="text-center">
-      <span class="loading loading-spinner loading-lg"></span>
-    </div>
-    <div v-else-if="error" class="alert alert-error">
-      <span>エラー: {{ error.message }}</span>
-    </div>
-    <div v-else-if="room" class="space-y-6">
-      <div class="card bg-base-100 shadow-xl">
-        <div class="card-body">
-          <h1 class="card-title text-2xl">{{ room.name }}</h1>
-          <p class="text-sm text-gray-500">ルームコード: {{ room.code }}</p>
+  <div class="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50">
+    <div class="container mx-auto px-4 py-8">
+      <div v-if="fetching" class="flex items-center justify-center min-h-screen">
+        <div class="text-center">
+          <span class="loading loading-spinner loading-lg text-purple-500"></span>
+          <p class="mt-4 text-gray-600">読み込み中...</p>
         </div>
       </div>
-
-      <ParticipantList :participants="room.participants" />
-
-      <!-- フェーズに応じたコンポーネントを表示 -->
-      <div v-if="hasDraftTopics">
-        <TopicDraftList
-          :topics="room.topics"
-          :room-id="room.id"
-          @refresh="refetch()"
-        />
+      <div v-else-if="error" class="card-modern border-2 border-red-200 animate-fade-in">
+        <div class="card-body">
+          <div class="alert alert-error shadow-lg">
+            <span>エラー: {{ error.message }}</span>
+          </div>
+        </div>
       </div>
+      <div v-else-if="room" class="space-y-8 animate-fade-in">
+        <!-- ルームヘッダー -->
+        <div class="card-modern border-2 border-purple-200 bg-gradient-to-r from-white to-purple-50 shadow-xl">
+          <div class="card-body p-6">
+            <div class="flex items-center justify-between">
+              <div>
+                <h1 class="text-4xl font-bold text-gradient mb-2">{{ room.name }}</h1>
+                <div class="flex items-center gap-3">
+                  <span class="badge badge-lg badge-primary px-4 py-2 text-sm font-semibold">
+                    🔑 ルームコード: {{ room.code }}
+                  </span>
+                  <span class="text-sm text-gray-600">
+                    👥 {{ room.participants.length }}人が参加中
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
-      <div v-else-if="hasOrganizingTopics">
-        <TopicOrganizeView
-          :topics="room.topics"
-          @refresh="refetch()"
-        />
-      </div>
+        <!-- 参加者リスト -->
+        <ParticipantList :participants="room.participants" />
 
-      <div v-else>
-        <TopicCard
-          v-for="topic in votingTopics"
-          :key="topic.id"
-          :topic="topic"
-          :participant-id="currentParticipantId"
-          :total-participants="room.participants.length"
-          @refresh="refetch()"
-        />
+        <!-- フェーズに応じたコンポーネントを表示 -->
+        <div v-if="hasDraftTopics" class="animate-fade-in" style="animation-delay: 0.1s">
+          <TopicDraftList
+            :topics="room.topics"
+            :room-id="room.id"
+            @refresh="refetch()"
+          />
+        </div>
+
+        <div v-else-if="hasOrganizingTopics" class="animate-fade-in" style="animation-delay: 0.1s">
+          <TopicOrganizeView
+            :topics="room.topics"
+            @refresh="refetch()"
+          />
+        </div>
+
+        <div v-else class="space-y-6 animate-fade-in" style="animation-delay: 0.1s">
+          <TopicCard
+            v-for="(topic, index) in votingTopics"
+            :key="topic.id"
+            :topic="topic"
+            :participant-id="currentParticipantId"
+            :total-participants="room.participants.length"
+            :style="{ animationDelay: `${0.1 + index * 0.05}s` }"
+            @refresh="refetch()"
+          />
+        </div>
       </div>
     </div>
   </div>

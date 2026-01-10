@@ -23,6 +23,7 @@
     "@graphql-codegen/typescript": "^4.0.1",
     "@graphql-codegen/typescript-operations": "^4.2.0",
     "@graphql-codegen/typescript-urql": "^4.0.1",
-    "@nuxtjs/tailwindcss": "^6.12.1"
+    "@nuxtjs/tailwindcss": "^6.12.1",
+    "daisyui": "^5.5.14"
   }
 }
