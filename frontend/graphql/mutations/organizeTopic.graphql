@@ -1,0 +1,9 @@
+mutation OrganizeTopic($topicId: ID!) {
+  organizeTopic(topicId: $topicId) {
+    topic {
+      id
+      status
+    }
+    errors
+  }
+}

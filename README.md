@@ -32,6 +32,13 @@ NUXT_PUBLIC_API_BASE_URL=http://localhost:3001
 
 # CORS設定（Rails用）
 FRONTEND_URL=http://localhost:8088
+
+# Google OAuth設定
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+
+# JWT設定
+JWT_SECRET=your_jwt_secret_key
 ```
 
 `.env.example`を参考にしてください。
@@ -74,11 +81,60 @@ npm run dev
 - ヘルスチェック: `http://localhost:3001/up`
 - GraphQLエンドポイント: `http://localhost:3001/graphql`
 - GraphiQL IDE: `http://localhost:3001/graphiql` (開発環境のみ)
+- Google認証エンドポイント: `http://localhost:3001/auth/google`
 
 ### フロントエンド（Nuxt 3）
 
 - 開発サーバー: `http://localhost:8088`
 - APIベースURLは環境変数`NUXT_PUBLIC_API_BASE_URL`で設定されます
+
+## 認証
+
+このプロジェクトはGoogleアカウントを使用したOAuth認証を実装しています。
+
+### 認証フロー
+
+1. ユーザーがログインボタンをクリック
+2. Google認証ページにリダイレクト
+3. Googleアカウントで認証
+4. コールバックでJWTトークンを受け取り、localStorageに保存
+5. 以降のGraphQLリクエストにJWTトークンを付与
+
+### Google OAuth設定
+
+1. [Google Cloud Console](https://console.cloud.google.com/)でプロジェクトを作成
+2. OAuth 2.0 クライアントIDを作成
+3. 承認済みのリダイレクトURIに以下を追加:
+   - `http://localhost:3001/auth/google/callback` (開発環境)
+4. `.env`ファイルに`GOOGLE_CLIENT_ID`と`GOOGLE_CLIENT_SECRET`を設定
+
+### JWT設定
+
+`.env`ファイルに`JWT_SECRET`を設定してください。強力なランダム文字列を使用することを推奨します。
+
+```bash
+# ランダムなシークレットキーを生成する例
+openssl rand -hex 32
+```
+
+### フロントエンドでの認証
+
+`useAuth` composableを使用して認証状態を管理します：
+
+```vue
+<script setup lang="ts">
+const { isAuthenticated, login, logout } = useAuth()
+</script>
+
+<template>
+  <div v-if="isAuthenticated">
+    <button @click="logout">ログアウト</button>
+  </div>
+  <div v-else>
+    <button @click="login">Googleでログイン</button>
+  </div>
+</template>
+```
 
 ## GraphQL
 

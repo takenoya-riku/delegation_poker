@@ -16,12 +16,32 @@
 
       <ParticipantList :participants="room.participants" />
 
-      <TopicList
-        :topics="room.topics"
-        :room-id="room.id"
-        :participant-id="currentParticipantId"
-        @refresh="refetch()"
-      />
+      <!-- フェーズに応じたコンポーネントを表示 -->
+      <div v-if="hasDraftTopics">
+        <TopicDraftList
+          :topics="room.topics"
+          :room-id="room.id"
+          @refresh="refetch()"
+        />
+      </div>
+
+      <div v-else-if="hasOrganizingTopics">
+        <TopicOrganizeView
+          :topics="room.topics"
+          @refresh="refetch()"
+        />
+      </div>
+
+      <div v-else>
+        <TopicCard
+          v-for="topic in votingTopics"
+          :key="topic.id"
+          :topic="topic"
+          :participant-id="currentParticipantId"
+          :total-participants="room.participants.length"
+          @refresh="refetch()"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -42,6 +62,21 @@ const { data, fetching, error, refetch } = useQuery({
 
 const room = computed(() => data.value?.room)
 
+const hasDraftTopics = computed(() => {
+  return room.value?.topics.some(t => t.status === 'draft') || false
+})
+
+const hasOrganizingTopics = computed(() => {
+  return room.value?.topics.some(t => t.status === 'organizing') || false
+})
+
+const votingTopics = computed(() => {
+  if (!room.value) return []
+  return room.value.topics.filter(t => 
+    ['current_voting', 'current_revealed', 'desired_voting', 'desired_revealed', 'completed'].includes(t.status)
+  )
+})
+
 // ローカルストレージから参加者IDを取得（簡易実装）
 const currentParticipantId = ref<string | null>(null)
 
@@ -55,3 +90,4 @@ useHead({
   title: room.value ? `${room.value.name} - Delegation Poker` : 'Delegation Poker'
 })
 </script>
+

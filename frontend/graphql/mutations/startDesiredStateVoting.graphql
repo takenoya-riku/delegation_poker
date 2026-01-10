@@ -1,0 +1,9 @@
+mutation StartDesiredStateVoting($topicId: ID!) {
+  startDesiredStateVoting(topicId: $topicId) {
+    topic {
+      id
+      status
+    }
+    errors
+  }
+}

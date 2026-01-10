@@ -1,6 +1,14 @@
 <template>
   <div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-8 text-center">Delegation Poker</h1>
+    <div class="flex justify-between items-center mb-8">
+      <h1 class="text-3xl font-bold">Delegation Poker</h1>
+      <div v-if="isAuthenticated">
+        <LogoutButton />
+      </div>
+      <div v-else>
+        <LoginButton />
+      </div>
+    </div>
 
     <div class="max-w-md mx-auto space-y-6">
       <RoomCreateForm />
@@ -11,6 +19,8 @@
 </template>
 
 <script setup lang="ts">
+const { isAuthenticated } = useAuth()
+
 useHead({
   title: 'Delegation Poker'
 })

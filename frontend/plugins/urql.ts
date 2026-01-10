@@ -6,17 +6,27 @@ import type { Client } from '@urql/vue'
 export default defineNuxtPlugin((nuxt) => {
   const { vueApp } = nuxt
   const config = useRuntimeConfig()
+  const { getToken } = useAuth()
   
   const client = createClient({
     url: `${config.public.apiBaseUrl}/graphql`,
     exchanges: [cacheExchange, fetchExchange],
     requestPolicy: 'cache-and-network',
-    fetchOptions: {
-      method: 'POST',
-      credentials: 'include',
-      headers: {
+    fetchOptions: () => {
+      const token = getToken()
+      const headers: Record<string, string> = {
         'Content-Type': 'application/json',
-      },
+      }
+      
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`
+      }
+      
+      return {
+        method: 'POST',
+        credentials: 'include',
+        headers,
+      }
     },
   })
 

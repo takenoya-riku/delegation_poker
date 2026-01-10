@@ -1,8 +1,9 @@
-mutation Vote($topicId: ID!, $participantId: ID!, $level: Int!) {
-  vote(topicId: $topicId, participantId: $participantId, level: $level) {
+mutation Vote($topicId: ID!, $participantId: ID!, $level: Int!, $voteType: VoteTypeEnum!) {
+  vote(topicId: $topicId, participantId: $participantId, level: $level, voteType: $voteType) {
     vote {
       id
       level
+      voteType
     }
     errors
   }

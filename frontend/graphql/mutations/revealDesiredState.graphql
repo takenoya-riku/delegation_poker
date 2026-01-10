@@ -1,0 +1,9 @@
+mutation RevealDesiredState($topicId: ID!) {
+  revealDesiredState(topicId: $topicId) {
+    topic {
+      id
+      status
+    }
+    errors
+  }
+}

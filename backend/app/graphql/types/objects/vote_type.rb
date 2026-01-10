@@ -3,6 +3,7 @@ module Types
     class VoteType < Types::Base::BaseObject
       field :id, ID, null: false
       field :level, Integer, null: false
+      field :vote_type, Types::Enums::VoteTypeEnum, null: false
       field :topic_id, ID, null: false
       field :participant_id, ID, null: false
       field :participant, Types::Objects::ParticipantType, null: false
@@ -11,3 +12,4 @@ module Types
     end
   end
 end
+

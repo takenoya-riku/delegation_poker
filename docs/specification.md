@@ -9,8 +9,10 @@ Delegation Pokerは、チーム内での権限委譲レベルを可視化し、�
 ### 1.2 主要機能
 
 - ルームの作成と参加
-- トピックの追加と管理
-- 権限委譲レベル（1-7）での投票
+- 話し合いたい対象出し
+- 対象の整理（統合・編集・削除）
+- 現状確認の投票（権限委譲レベル1-7）
+- ありたい姿の投票（権限委譲レベル1-7）
 - 投票結果の公開と統計表示
 - リアルタイム更新（ポーリング）
 
@@ -61,15 +63,23 @@ Delegation Pokerは、チーム内での権限委譲レベルを可視化し、�
   - `room_id`: UUID（外部キー）
   - `title`: タイトル（必須）
   - `description`: 説明（オプション）
-  - `status`: ステータス（`voting`または`revealed`、デフォルト: `voting`）
+  - `status`: ステータス（デフォルト: `draft`）
+    - `draft`: 対象出しフェーズ
+    - `organizing`: 整理フェーズ
+    - `current_voting`: 現状確認投票中
+    - `current_revealed`: 現状確認結果公開済み
+    - `desired_voting`: ありたい姿投票中
+    - `desired_revealed`: ありたい姿結果公開済み
+    - `completed`: 完了
   - `created_at`, `updated_at`: タイムスタンプ
 - **関連**:
   - `belongs_to :room`
   - `has_many :votes`
 - **ビジネスロジック**:
-  - 作成時は`voting`ステータス
-  - `reveal!`メソッドで`revealed`に変更
-  - `all_participants_voted?`で全参加者の投票完了を判定
+  - 作成時は`draft`ステータス
+  - フェーズ遷移メソッド: `start_organizing!`, `start_current_voting!`, `reveal_current_state!`, `start_desired_voting!`, `reveal_desired_state!`, `complete!`
+  - `all_participants_voted_current_state?`で現状確認の投票完了を判定
+  - `all_participants_voted_desired_state?`でありたい姿の投票完了を判定
 
 ### 2.4 Vote（投票）
 
@@ -79,13 +89,15 @@ Delegation Pokerは、チーム内での権限委譲レベルを可視化し、�
   - `topic_id`: UUID（外部キー）
   - `participant_id`: UUID（外部キー）
   - `level`: 権限委譲レベル（1-7、必須）
+  - `vote_type`: 投票の種類（`current_state`または`desired_state`、必須）
   - `created_at`, `updated_at`: タイムスタンプ
 - **関連**:
   - `belongs_to :topic`
   - `belongs_to :participant`
 - **ビジネスロジック**:
-  - トピックと参加者の組み合わせは一意（同じ参加者は1つのトピックに1回のみ投票可能、更新は可能）
-  - トピックが`voting`ステータスの場合のみ投票可能
+  - トピック、参加者、vote_typeの組み合わせは一意（同じ参加者は1つのトピックに対して現状確認とありたい姿の2回投票可能）
+  - 現状確認投票はトピックが`current_voting`ステータスの場合のみ可能
+  - ありたい姿投票はトピックが`desired_voting`ステータスの場合のみ可能
   - レベルは1-7の範囲
 
 ### 2.5 Delegation Level（権限委譲レベル）
@@ -139,7 +151,7 @@ Delegation Pokerは、チーム内での権限委譲レベルを可視化し、�
 
 #### addTopic
 
-- **説明**: ルームにトピックを追加
+- **説明**: ルームにトピックを追加（対象出し）
 - **引数**:
   - `room_id: ID!`: ルームID
   - `title: String!`: トピックタイトル
@@ -148,7 +160,55 @@ Delegation Pokerは、チーム内での権限委譲レベルを可視化し、�
   - `topic: TopicType`: 作成されたトピック（null可能）
   - `errors: [String!]!`: エラーメッセージ配列
 - **ビジネスロジック**:
-  - 作成時は`voting`ステータス
+  - 作成時は`draft`ステータス
+
+#### updateTopic
+
+- **説明**: トピックを編集する（整理フェーズ用）
+- **引数**:
+  - `topic_id: ID!`: トピックID
+  - `title: String`: タイトル（オプション）
+  - `description: String`: 説明（オプション）
+- **戻り値**:
+  - `topic: TopicType`: 更新されたトピック（null可能）
+  - `errors: [String!]!`: エラーメッセージ配列
+- **ビジネスロジック**:
+  - 整理フェーズ（`organizing`）のトピックのみ編集可能
+
+#### deleteTopic
+
+- **説明**: トピックを削除する（整理フェーズ用）
+- **引数**:
+  - `topic_id: ID!`: トピックID
+- **戻り値**:
+  - `success: Boolean!`: 成功フラグ
+  - `errors: [String!]!`: エラーメッセージ配列
+- **ビジネスロジック**:
+  - 整理フェーズ（`organizing`）のトピックのみ削除可能
+
+#### mergeTopics
+
+- **説明**: トピックを統合する（整理フェーズ用）
+- **引数**:
+  - `source_topic_id: ID!`: 統合元のトピックID
+  - `target_topic_id: ID!`: 統合先のトピックID
+- **戻り値**:
+  - `topic: TopicType`: 統合後のトピック（null可能）
+  - `errors: [String!]!`: エラーメッセージ配列
+- **ビジネスロジック**:
+  - 整理フェーズ（`organizing`）のトピックのみ統合可能
+  - 同じルームのトピックのみ統合可能
+
+#### organizeTopic
+
+- **説明**: トピックを整理フェーズから現状投票フェーズに移行する
+- **引数**:
+  - `topic_id: ID!`: トピックID
+- **戻り値**:
+  - `topic: TopicType`: 更新されたトピック（null可能）
+  - `errors: [String!]!`: エラーメッセージ配列
+- **ビジネスロジック**:
+  - 対象出しフェーズ（`draft`）のトピックを整理フェーズ（`organizing`）に移行後、現状投票フェーズ（`current_voting`）に移行
 
 #### vote
 
@@ -157,25 +217,62 @@ Delegation Pokerは、チーム内での権限委譲レベルを可視化し、�
   - `topic_id: ID!`: トピックID
   - `participant_id: ID!`: 参加者ID
   - `level: Int!`: 権限委譲レベル（1-7）
+  - `vote_type: VoteTypeEnum!`: 投票の種類（`CURRENT_STATE`または`DESIRED_STATE`）
 - **戻り値**:
   - `vote: VoteType`: 作成/更新された投票（null可能）
   - `errors: [String!]!`: エラーメッセージ配列
 - **ビジネスロジック**:
   - 既存の投票がある場合は更新
   - トピックと参加者が同じルームに属している必要がある
-  - トピックが`voting`ステータスである必要がある
+  - 現状確認投票はトピックが`current_voting`ステータスである必要がある
+  - ありたい姿投票はトピックが`desired_voting`ステータスである必要がある
 
-#### revealTopic
+#### revealCurrentState
 
-- **説明**: トピックの投票結果を公開
+- **説明**: 現状確認の投票結果を公開
 - **引数**:
   - `topic_id: ID!`: トピックID
 - **戻り値**:
   - `topic: TopicType`: 更新されたトピック（null可能）
   - `errors: [String!]!`: エラーメッセージ配列
 - **ビジネスロジック**:
-  - 既に`revealed`の場合はエラー
-  - ステータスを`revealed`に変更
+  - トピックが`current_voting`ステータスである必要がある
+  - ステータスを`current_revealed`に変更
+
+#### startDesiredStateVoting
+
+- **説明**: ありたい姿投票フェーズを開始する
+- **引数**:
+  - `topic_id: ID!`: トピックID
+- **戻り値**:
+  - `topic: TopicType`: 更新されたトピック（null可能）
+  - `errors: [String!]!`: エラーメッセージ配列
+- **ビジネスロジック**:
+  - トピックが`current_revealed`ステータスである必要がある
+  - ステータスを`desired_voting`に変更
+
+#### revealDesiredState
+
+- **説明**: ありたい姿の投票結果を公開
+- **引数**:
+  - `topic_id: ID!`: トピックID
+- **戻り値**:
+  - `topic: TopicType`: 更新されたトピック（null可能）
+  - `errors: [String!]!`: エラーメッセージ配列
+- **ビジネスロジック**:
+  - トピックが`desired_voting`ステータスである必要がある
+  - ステータスを`desired_revealed`に変更
+
+#### revealTopic
+
+- **説明**: トピックの投票結果を公開（後方互換性のため残存）
+- **引数**:
+  - `topic_id: ID!`: トピックID
+- **戻り値**:
+  - `topic: TopicType`: 更新されたトピック（null可能）
+  - `errors: [String!]!`: エラーメッセージ配列
+- **ビジネスロジック**:
+  - トピックの現在のステータスに応じて適切な公開処理を実行
 
 ## 4. UI/UXフロー
 
@@ -198,16 +295,43 @@ Delegation Pokerは、チーム内での権限委譲レベルを可視化し、�
 1. ルームコードでルーム情報を取得（`room` query）
 2. 5秒ごとにポーリングして最新情報を取得
 3. 参加者一覧を表示
-4. トピック一覧を表示
-5. 各トピックで投票可能（`voting`ステータスの場合）
-6. 投票結果を公開（`revealTopic` mutation）
+4. フェーズに応じたUIを表示：
+   - **対象出しフェーズ**: `TopicDraftList`コンポーネントで対象を追加・確認
+   - **整理フェーズ**: `TopicOrganizeView`コンポーネントで統合・編集・削除
+   - **投票フェーズ**: `TopicCard`コンポーネントで投票・結果表示
 
-### 4.4 投票フロー
+### 4.4 対象出しフロー
 
-1. トピックカードで1-7のボタンから選択
-2. `vote` mutationを実行
-3. 既存の投票がある場合は更新
-4. UIを更新して現在の投票レベルを表示
+1. `TopicDraftList`でトピックタイトルと説明を入力
+2. `addTopic` mutationを実行（status: `draft`）
+3. 追加された対象を確認
+4. 「整理フェーズに進む」ボタンで整理フェーズに移行
+
+### 4.5 整理フロー
+
+1. `TopicOrganizeView`で対象一覧を表示
+2. 重複や類似の対象を統合（`mergeTopics` mutation）
+3. 対象を編集（`updateTopic` mutation）
+4. 不要な対象を削除（`deleteTopic` mutation）
+5. 「現状確認投票に進む」ボタンで投票フェーズに移行（`organizeTopic` mutation）
+
+### 4.6 現状確認投票フロー
+
+1. トピックカードで「現状確認」の投票UIを表示
+2. 1-7のボタンから選択
+3. `vote` mutationを実行（`vote_type: CURRENT_STATE`）
+4. 既存の投票がある場合は更新
+5. 全参加者が投票完了後、「現状確認結果を公開」ボタンで公開（`revealCurrentState` mutation）
+
+### 4.7 ありたい姿投票フロー
+
+1. 現状確認結果公開後、「ありたい姿投票を開始」ボタンで開始（`startDesiredStateVoting` mutation）
+2. トピックカードで「ありたい姿」の投票UIを表示
+3. 1-7のボタンから選択
+4. `vote` mutationを実行（`vote_type: DESIRED_STATE`）
+5. 既存の投票がある場合は更新
+6. 全参加者が投票完了後、「ありたい姿結果を公開」ボタンで公開（`revealDesiredState` mutation）
+7. 現状確認とありたい姿の結果を比較表示
 
 ## 5. ビジネスロジック
 
@@ -217,15 +341,26 @@ Delegation Pokerは、チーム内での権限委譲レベルを可視化し、�
 - コードは大文字小文字を区別しない検索が可能
 - ルームは永続的に保存され、削除機能はない（現時点）
 
-### 5.2 投票管理
+### 5.2 フェーズ管理
 
-- 1つのトピックに対して1人の参加者は1回のみ投票可能（更新は可能）
-- 投票はトピックが`voting`ステータスの場合のみ可能
-- 投票結果が公開されると（`revealed`）、新しい投票は不可
+- **対象出しフェーズ**: トピックを追加（status: `draft`）
+- **整理フェーズ**: トピックを統合・編集・削除（status: `organizing`）
+- **現状確認投票フェーズ**: 現状確認の投票を実施（status: `current_voting`）
+- **現状確認結果公開**: 現状確認の結果を公開（status: `current_revealed`）
+- **ありたい姿投票フェーズ**: ありたい姿の投票を実施（status: `desired_voting`）
+- **ありたい姿結果公開**: ありたい姿の結果を公開（status: `desired_revealed`）
 
-### 5.3 結果公開
+### 5.3 投票管理
 
-- トピックのステータスを`voting`から`revealed`に変更
+- 1つのトピックに対して1人の参加者は現状確認とありたい姿の2回投票可能（各1回、更新は可能）
+- 現状確認投票はトピックが`current_voting`ステータスの場合のみ可能
+- ありたい姿投票はトピックが`desired_voting`ステータスの場合のみ可能
+- 投票結果が公開されると、そのフェーズの新しい投票は不可
+
+### 5.4 結果公開
+
+- 現状確認結果公開: トピックのステータスを`current_voting`から`current_revealed`に変更
+- ありたい姿結果公開: トピックのステータスを`desired_voting`から`desired_revealed`に変更
 - 公開後は以下の統計情報を表示：
   - 平均投票レベル（`average_vote_level`）
   - 最小投票レベル（`min_vote_level`）

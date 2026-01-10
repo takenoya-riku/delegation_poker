@@ -1,0 +1,6 @@
+mutation DeleteTopic($topicId: ID!) {
+  deleteTopic(topicId: $topicId) {
+    success
+    errors
+  }
+}

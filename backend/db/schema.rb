@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_09_132338) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_10_220015) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -35,11 +35,22 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_09_132338) do
     t.uuid "room_id", null: false
     t.string "title", null: false
     t.text "description"
-    t.string "status", default: "voting", null: false
+    t.string "status", default: "draft", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["room_id"], name: "index_topics_on_room_id"
     t.index ["status"], name: "index_topics_on_status"
+  end
+
+  create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "email", null: false
+    t.string "name", null: false
+    t.string "google_uid", null: false
+    t.string "avatar_url"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["google_uid"], name: "index_users_on_google_uid", unique: true
   end
 
   create_table "votes", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -48,9 +59,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_09_132338) do
     t.integer "level", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "vote_type", default: "current_state", null: false
     t.index ["level"], name: "index_votes_on_level"
     t.index ["participant_id"], name: "index_votes_on_participant_id"
-    t.index ["topic_id", "participant_id"], name: "index_votes_on_topic_id_and_participant_id", unique: true
+    t.index ["topic_id", "participant_id", "vote_type"], name: "index_votes_on_topic_participant_vote_type", unique: true
     t.index ["topic_id"], name: "index_votes_on_topic_id"
   end
 

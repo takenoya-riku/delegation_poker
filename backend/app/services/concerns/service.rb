@@ -1,3 +1,5 @@
+require 'ostruct'
+
 module Service
   extend ActiveSupport::Concern
 

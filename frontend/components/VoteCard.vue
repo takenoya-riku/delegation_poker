@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-4">
     <div>
-      <p class="text-sm font-semibold mb-2">権限レベルを選択してください</p>
+      <p class="text-sm font-semibold mb-2">{{ voteTypeLabel }}の権限レベルを選択してください</p>
       <div class="grid grid-cols-7 gap-2">
         <button
           v-for="level in [1, 2, 3, 4, 5, 6, 7]"
@@ -32,9 +32,11 @@ import { VoteDocument } from '~/graphql/generated/types'
 const props = defineProps<{
   topicId: string
   participantId: string
+  voteType: 'current_state' | 'desired_state'
   votes: Array<{
     id: string
     level: number
+    voteType: string
     participant: {
       id: string
     }
@@ -45,8 +47,14 @@ const emit = defineEmits<{
   voted: []
 }>()
 
+const voteTypeLabel = computed(() => {
+  return props.voteType === 'current_state' ? '現状確認' : 'ありたい姿'
+})
+
 const currentVote = computed(() => {
-  const vote = props.votes.find(v => v.participant.id === props.participantId)
+  const vote = props.votes.find(
+    v => v.participant.id === props.participantId && v.voteType === props.voteType
+  )
   return vote?.level || null
 })
 
@@ -62,7 +70,8 @@ const handleVote = async (level: number) => {
   const result = await voteMutation.executeMutation({
     topicId: props.topicId,
     participantId: props.participantId,
-    level
+    level,
+    voteType: props.voteType.toUpperCase()
   })
 
   if (result.data?.vote?.vote) {
@@ -74,3 +83,4 @@ const handleVote = async (level: number) => {
   voting.value = false
 }
 </script>
+

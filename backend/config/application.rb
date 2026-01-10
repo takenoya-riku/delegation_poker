@@ -11,5 +11,9 @@ module DelegationPoker
 
     config.time_zone = "Tokyo"
     config.i18n.default_locale = :ja
+
+    # OmniAuth用にセッションミドルウェアを追加
+    config.middleware.use ActionDispatch::Cookies
+    config.middleware.use ActionDispatch::Session::CookieStore, key: '_delegation_poker_session'
   end
 end

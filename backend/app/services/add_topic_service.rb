@@ -12,7 +12,7 @@ class AddTopicService
       )
     end
 
-    topic = room.topics.build(title: title, description: description)
+    topic = room.topics.build(title: title, description: description, status: 'draft')
 
     if topic.save
       OpenStruct.new(

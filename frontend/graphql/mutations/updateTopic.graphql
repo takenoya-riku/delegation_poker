@@ -1,0 +1,11 @@
+mutation UpdateTopic($topicId: ID!, $title: String, $description: String) {
+  updateTopic(topicId: $topicId, title: $title, description: $description) {
+    topic {
+      id
+      title
+      description
+      status
+    }
+    errors
+  }
+}

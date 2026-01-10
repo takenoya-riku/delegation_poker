@@ -4,7 +4,7 @@ module Types
       field :id, ID, null: false
       field :title, String, null: false
       field :description, String, null: true
-      field :status, String, null: false
+      field :status, Types::Enums::TopicStatusEnum, null: false
       field :room_id, ID, null: false
       field :votes, [Types::Objects::VoteType], null: false
       field :created_at, GraphQL::Types::ISO8601DateTime, null: false
