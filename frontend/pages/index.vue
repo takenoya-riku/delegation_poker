@@ -8,6 +8,9 @@
       <!-- ヘッダー -->
       <div class="flex justify-between items-center mb-12 animate-fade-in">
         <h1 class="text-5xl font-bold text-gradient">Delegation Poker</h1>
+        <NuxtLink to="/rooms" class="btn-gradient px-6 py-2 rounded-full text-sm font-semibold shadow-lg">
+          保存したルーム
+        </NuxtLink>
       </div>
 
       <!-- ヒーローセクション -->
@@ -72,4 +75,3 @@ useHead({
   right: 0;
 }
 </style>
-

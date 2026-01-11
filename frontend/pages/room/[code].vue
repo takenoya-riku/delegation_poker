@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50">
     <div class="container mx-auto px-4 py-8">
-      <div v-if="fetching" class="flex items-center justify-center min-h-screen">
+      <div v-if="fetching && !hasLoaded" class="flex items-center justify-center min-h-screen">
         <div class="text-center">
           <span class="loading loading-spinner loading-lg text-purple-500"></span>
           <p class="mt-4 text-gray-600">読み込み中...</p>
@@ -43,14 +43,14 @@
           <TopicDraftList
             :topics="room.topics"
             :room-id="room.id"
-            @refresh="refetch"
+            @refresh="handleRefresh"
           />
         </div>
 
         <div v-else-if="hasOrganizingTopics" class="animate-fade-in" style="animation-delay: 0.1s">
           <TopicOrganizeView
             :topics="room.topics"
-            @refresh="refetch"
+            @refresh="handleRefresh"
           />
         </div>
 
@@ -62,7 +62,7 @@
             :participant-id="currentParticipantId"
             :total-participants="room.participants.length"
             :style="{ animationDelay: `${0.1 + index * 0.05}s` }"
-            @refresh="refetch"
+            @refresh="handleRefresh"
           />
         </div>
       </div>
@@ -77,14 +77,21 @@ import { RoomDocument } from '~/graphql/generated/types'
 const route = useRoute()
 const code = route.params.code as string
 
-const { data, fetching, error, refetch } = useQuery({
+const { data, fetching, error, executeQuery } = useQuery({
   query: RoomDocument,
   variables: { code: code.toUpperCase() },
-  requestPolicy: 'cache-and-network',
-  pollInterval: 5000 // 5秒ごとにポーリング
+  requestPolicy: 'cache-and-network'
 })
 
 const room = computed(() => data.value?.room)
+const hasLoaded = ref(false)
+const savedRoomsKey = 'saved_rooms'
+
+const handleRefresh = () => {
+  executeQuery({ requestPolicy: 'network-only' })
+}
+
+let pollTimer: ReturnType<typeof setInterval> | null = null
 
 const hasNoTopics = computed(() => {
   return !room.value?.topics || room.value.topics.length === 0
@@ -110,9 +117,46 @@ const votingTopics = computed(() => {
 // ローカルストレージから参加者IDを取得（簡易実装）
 const currentParticipantId = ref<string | null>(null)
 
+watch(
+  () => room.value,
+  (value) => {
+    if (!value) return
+    hasLoaded.value = true
+
+    if (typeof window !== 'undefined') {
+      const raw = localStorage.getItem(savedRoomsKey)
+      const parsed = raw ? JSON.parse(raw) : []
+      const rooms = Array.isArray(parsed) ? parsed : []
+      const now = new Date().toISOString()
+      const existingIndex = rooms.findIndex((entry: { code: string }) => entry.code === value.code)
+      const updatedEntry = { code: value.code, name: value.name, updatedAt: now }
+
+      if (existingIndex >= 0) {
+        rooms.splice(existingIndex, 1, updatedEntry)
+      } else {
+        rooms.push(updatedEntry)
+      }
+
+      localStorage.setItem(savedRoomsKey, JSON.stringify(rooms))
+    }
+  },
+  { immediate: true }
+)
+
 onMounted(() => {
   if (typeof window !== 'undefined') {
     currentParticipantId.value = localStorage.getItem(`participant_${code.toUpperCase()}`)
+  }
+
+  pollTimer = setInterval(() => {
+    executeQuery({ requestPolicy: 'network-only' })
+  }, 5000)
+})
+
+onBeforeUnmount(() => {
+  if (pollTimer) {
+    clearInterval(pollTimer)
+    pollTimer = null
   }
 })
 
@@ -120,4 +164,3 @@ useHead({
   title: room.value ? `${room.value.name} - Delegation Poker` : 'Delegation Poker'
 })
 </script>
-
