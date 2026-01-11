@@ -5,10 +5,6 @@ Rails.application.routes.draw do
   # Can be used by uptime monitors and load balancers.
   get "up" => "rails/health#show", as: :rails_health_check
 
-  # OAuth認証
-  get "/auth/google", to: "auth#google"
-  get "/auth/google/callback", to: "auth#google_callback"
-
   # GraphQL endpoint
   post "/graphql", to: "graphql#execute"
   # GETリクエストも許可（開発環境のみ、GraphiQLなどで使用）

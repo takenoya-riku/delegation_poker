@@ -8,12 +8,6 @@
       <!-- ヘッダー -->
       <div class="flex justify-between items-center mb-12 animate-fade-in">
         <h1 class="text-5xl font-bold text-gradient">Delegation Poker</h1>
-        <div v-if="isAuthenticated" class="animate-slide-in">
-          <LogoutButton />
-        </div>
-        <div v-else class="animate-slide-in">
-          <LoginButton />
-        </div>
       </div>
 
       <!-- ヒーローセクション -->
@@ -45,8 +39,6 @@
 </template>
 
 <script setup lang="ts">
-const { isAuthenticated } = useAuth()
-
 useHead({
   title: 'Delegation Poker'
 })

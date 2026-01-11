@@ -42,17 +42,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_10_220015) do
     t.index ["status"], name: "index_topics_on_status"
   end
 
-  create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.string "email", null: false
-    t.string "name", null: false
-    t.string "google_uid", null: false
-    t.string "avatar_url"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["email"], name: "index_users_on_email", unique: true
-    t.index ["google_uid"], name: "index_users_on_google_uid", unique: true
-  end
-
   create_table "votes", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "topic_id", null: false
     t.uuid "participant_id", null: false
