@@ -60,10 +60,16 @@
         <span>{{ organizeError }}</span>
       </div>
       <div class="flex justify-end">
-        <button @click="handleStartOrganizing" class="btn-gradient-secondary px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105" :disabled="organizing">
+        <button
+          v-if="props.isRoomMaster"
+          @click="handleStartOrganizing"
+          class="btn-gradient-secondary px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+          :disabled="organizing"
+        >
           <span v-if="organizing" class="loading loading-spinner loading-sm mr-2"></span>
           {{ organizing ? '整理フェーズに移行中...' : '🚀 整理フェーズに進む' }}
         </button>
+        <span v-else class="text-sm text-gray-500">整理フェーズへの移行はルームマスターのみ可能です</span>
       </div>
     </div>
   </div>
@@ -81,6 +87,7 @@ const props = defineProps<{
     status: string
   }>
   roomId: string
+  isRoomMaster: boolean
 }>()
 
 const emit = defineEmits<{

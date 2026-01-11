@@ -73,14 +73,16 @@ const handleJoin = async () => {
     name: participantName.value.trim()
   })
 
-  if (result.data?.joinRoom?.participant) {
-    const code = result.data.joinRoom.room.code
-    const participantId = result.data.joinRoom.participant.id
-    // 参加者IDをローカルストレージに保存
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(`participant_${code}`, participantId)
-    }
-    await navigateTo(`/room/${code}`)
+    if (result.data?.joinRoom?.participant) {
+      const code = result.data.joinRoom.room.code
+      const participantId = result.data.joinRoom.participant.id
+      // 参加者IDをローカルストレージに保存
+      if (typeof window !== 'undefined') {
+        const upperCode = code.toUpperCase()
+        localStorage.setItem(`participant_${upperCode}`, participantId)
+        sessionStorage.setItem(`participant_session_${upperCode}`, participantId)
+      }
+      await navigateTo(`/room/${code}`)
   } else {
     error.value = result.data?.joinRoom?.errors?.[0] || 'ルームへの参加に失敗しました'
   }

@@ -82,7 +82,10 @@ const handleCreate = async () => {
     if (joinResult.data?.joinRoom?.participant) {
       const participantId = joinResult.data.joinRoom.participant.id
       if (typeof window !== 'undefined') {
-        localStorage.setItem(`participant_${code}`, participantId)
+        const upperCode = code.toUpperCase()
+        localStorage.setItem(`participant_${upperCode}`, participantId)
+        sessionStorage.setItem(`participant_session_${upperCode}`, participantId)
+        localStorage.setItem(`room_master_${upperCode}`, participantId)
       }
       await navigateTo(`/room/${code}`)
     } else {

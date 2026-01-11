@@ -35,7 +35,7 @@
         </div>
 
         <!-- 参加者リスト -->
-        <ParticipantList :participants="room.participants" />
+        <ParticipantList :participants="room.participants" :current-participant-id="currentParticipantId" />
 
         <!-- フェーズに応じたコンポーネントを表示 -->
         <!-- トピックが1つもない場合、またはdraftトピックがある場合に対象出しフォームを表示 -->
@@ -43,6 +43,7 @@
           <TopicDraftList
             :topics="room.topics"
             :room-id="room.id"
+            :is-room-master="isRoomMaster"
             @refresh="handleRefresh"
           />
         </div>
@@ -50,6 +51,7 @@
         <div v-else-if="hasOrganizingTopics" class="animate-fade-in" style="animation-delay: 0.1s">
           <TopicOrganizeView
             :topics="room.topics"
+            :is-room-master="isRoomMaster"
             @refresh="handleRefresh"
           />
         </div>
@@ -116,6 +118,7 @@ const votingTopics = computed(() => {
 
 // ローカルストレージから参加者IDを取得（簡易実装）
 const currentParticipantId = ref<string | null>(null)
+const roomMasterId = ref<string | null>(null)
 
 watch(
   () => room.value,
@@ -145,12 +148,20 @@ watch(
 
 onMounted(() => {
   if (typeof window !== 'undefined') {
-    currentParticipantId.value = localStorage.getItem(`participant_${code.toUpperCase()}`)
+    const upperCode = code.toUpperCase()
+    currentParticipantId.value =
+      sessionStorage.getItem(`participant_session_${upperCode}`) ||
+      localStorage.getItem(`participant_${upperCode}`)
+    roomMasterId.value = localStorage.getItem(`room_master_${upperCode}`)
   }
 
   pollTimer = setInterval(() => {
     executeQuery({ requestPolicy: 'network-only' })
   }, 5000)
+})
+
+const isRoomMaster = computed(() => {
+  return Boolean(currentParticipantId.value && roomMasterId.value && currentParticipantId.value === roomMasterId.value)
 })
 
 onBeforeUnmount(() => {

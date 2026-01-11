@@ -39,10 +39,16 @@
     </div>
 
     <div v-if="organizingTopics.length > 0" class="flex justify-end">
-      <button @click="handleStartVoting" class="btn-gradient px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105" :disabled="starting">
+      <button
+        v-if="props.isRoomMaster"
+        @click="handleStartVoting"
+        class="btn-gradient px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+        :disabled="starting"
+      >
         <span v-if="starting" class="loading loading-spinner loading-sm mr-2"></span>
         {{ starting ? '投票フェーズに移行中...' : '📊 現状確認投票に進む' }}
       </button>
+      <span v-else class="text-sm text-gray-500">投票フェーズへの移行はルームマスターのみ可能です</span>
     </div>
 
     <!-- 編集モーダル -->
@@ -95,6 +101,7 @@ const props = defineProps<{
     description: string | null
     status: string
   }>
+  isRoomMaster: boolean
 }>()
 
 const emit = defineEmits<{

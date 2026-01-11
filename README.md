@@ -214,7 +214,7 @@ delegation_poker/
 │   └── package.json
 ├── docker-compose.yml   # Docker Compose設定
 ├── .env.example         # 環境変数テンプレート
-├── .cursorrules         # Cursor用のプロジェクトルール
+├── AGENTS.md            # エージェント用のプロジェクトルール
 ├── docs/                 # 詳細なドキュメント
 │   └── development/     # 開発ガイド
 │       └── testing.md   # テストガイド
@@ -329,7 +329,7 @@ Delegation Pokerは以下の4つのフェーズで進行します：
 1. **プロジェクトルートのREADME.md**: プロジェクト全体の概要とクイックスタート
 2. **docs/ディレクトリ**: 詳細なドキュメント（アーキテクチャ、API仕様、開発ガイドなど）
 3. **各ディレクトリのREADME.md**: ディレクトリの目的と構造の説明
-4. **.cursorrules**: Cursor用のプロジェクトルール
+4. **AGENTS.md**: エージェント用のプロジェクトルール
 
 ### Cursorでの活用方法
 
