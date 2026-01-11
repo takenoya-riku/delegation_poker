@@ -1,8 +1,8 @@
-require 'rails_helper'
+require "rails_helper"
 
-RSpec.describe 'Room Query', type: :graphql do
-  describe 'room' do
-    it 'ルームコードでルーム情報を取得する' do
+RSpec.describe "Room Query", type: :graphql do
+  describe "room" do
+    it "ルームコードでルーム情報を取得する" do
       room = create(:room)
       create(:participant, room: room)
       create(:topic, room: room)
@@ -26,18 +26,18 @@ RSpec.describe 'Room Query', type: :graphql do
             }
           }
         GRAPHQL
-        variables: { code: room.code }
+        variables: { code: room.code },
       )
 
       data = graphql_data(result)
       expect(data).to be_present
-      expect(data['room']['code']).to eq(room.code)
-      expect(data['room']['name']).to eq(room.name)
-      expect(data['room']['participants'].length).to eq(1)
-      expect(data['room']['topics'].length).to eq(1)
+      expect(data["room"]["code"]).to eq(room.code)
+      expect(data["room"]["name"]).to eq(room.name)
+      expect(data["room"]["participants"].length).to eq(1)
+      expect(data["room"]["topics"].length).to eq(1)
     end
 
-    it '存在しないルームコードの場合nullを返す' do
+    it "存在しないルームコードの場合nullを返す" do
       result = execute_graphql(
         query: <<~GRAPHQL,
           query Room($code: String!) {
@@ -46,15 +46,15 @@ RSpec.describe 'Room Query', type: :graphql do
             }
           }
         GRAPHQL
-        variables: { code: 'INVALID' }
+        variables: { code: "INVALID" },
       )
 
       data = graphql_data(result)
-      expect(data['room']).to be_nil
+      expect(data["room"]).to be_nil
     end
 
-    it '大文字小文字を区別せずにルームコードを検索する' do
-      room = create(:room, code: 'ABC123')
+    it "大文字小文字を区別せずにルームコードを検索する" do
+      create(:room, code: "ABC123")
 
       result = execute_graphql(
         query: <<~GRAPHQL,
@@ -65,11 +65,11 @@ RSpec.describe 'Room Query', type: :graphql do
             }
           }
         GRAPHQL
-        variables: { code: 'abc123' }
+        variables: { code: "abc123" },
       )
 
       data = graphql_data(result)
-      expect(data['room']['code']).to eq('ABC123')
+      expect(data["room"]["code"]).to eq("ABC123")
     end
   end
 end

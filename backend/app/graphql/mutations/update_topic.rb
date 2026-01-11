@@ -11,11 +11,9 @@ module Mutations
 
     def resolve(topic_id:, title: nil, description: nil)
       topic = Topic.find_by(id: topic_id)
-      return { topic: nil, errors: ['トピックが見つかりません'] } unless topic
+      return { topic: nil, errors: ["トピックが見つかりません"] } unless topic
 
-      unless topic.status == 'organizing'
-        return { topic: topic, errors: ['整理フェーズのトピックのみ編集できます'] }
-      end
+      return { topic: topic, errors: ["整理フェーズのトピックのみ編集できます"] } unless topic.status == "organizing"
 
       attributes = {}
       attributes[:title] = title if title.present?

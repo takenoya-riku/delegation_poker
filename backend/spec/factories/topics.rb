@@ -3,6 +3,6 @@ FactoryBot.define do
     association :room
     title { "Test Topic" }
     description { "Test Description" }
-    status { "voting" }
+    status { "current_voting" }
   end
 end

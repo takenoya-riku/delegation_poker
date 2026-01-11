@@ -18,14 +18,13 @@ module Mutations
         topic_id: topic_id,
         participant_id: participant_id,
         level: level,
-        vote_type: vote_type
+        vote_type: vote_type,
       )
 
       {
-        vote: result.vote,
-        errors: result.errors
+        vote: result[:vote],
+        errors: result[:errors],
       }
     end
   end
 end
-

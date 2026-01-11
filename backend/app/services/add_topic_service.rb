@@ -5,27 +5,27 @@ class AddTopicService
     room = Room.find_by(id: room_id)
 
     unless room
-      return OpenStruct.new(
+      return {
         success: false,
         topic: nil,
-        errors: ['ルームが見つかりません']
-      )
+        errors: ["ルームが見つかりません"],
+      }
     end
 
-    topic = room.topics.build(title: title, description: description, status: 'draft')
+    topic = room.topics.build(title: title, description: description, status: "draft")
 
     if topic.save
-      OpenStruct.new(
+      {
         success: true,
         topic: topic,
-        errors: []
-      )
+        errors: [],
+      }
     else
-      OpenStruct.new(
+      {
         success: false,
         topic: topic,
-        errors: topic.errors.full_messages
-      )
+        errors: topic.errors.full_messages,
+      }
     end
   end
 end

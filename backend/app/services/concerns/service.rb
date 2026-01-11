@@ -1,5 +1,3 @@
-require 'ostruct'
-
 module Service
   extend ActiveSupport::Concern
 
@@ -9,7 +7,5 @@ module Service
     end
   end
 
-  def logger
-    Rails.logger
-  end
+  delegate :logger, to: :Rails
 end

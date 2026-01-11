@@ -34,12 +34,8 @@ module Types
         object.votes.maximum(:level)
       end
 
-      field :all_participants_voted, Boolean, null: false do
+      field :all_participants_voted, Boolean, null: false, method: :all_participants_voted? do
         description "すべての参加者が投票済みか"
-      end
-
-      def all_participants_voted
-        object.all_participants_voted?
       end
     end
   end

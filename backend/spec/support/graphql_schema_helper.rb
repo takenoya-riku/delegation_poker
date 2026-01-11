@@ -27,7 +27,7 @@ module GraphQLSchemaHelper
       query,
       variables: variables,
       context: context,
-      operation_name: operation_name
+      operation_name: operation_name,
     )
   end
 
@@ -56,7 +56,7 @@ module GraphQLSchemaHelper
   #   data = graphql_data(result)
   #   expect(data['testField']).to eq('Hello World!')
   def graphql_data(result)
-    result['data']
+    result["data"]
   end
 
   # GraphQL実行結果からエラーを取得するヘルパー
@@ -69,7 +69,7 @@ module GraphQLSchemaHelper
   #   errors = graphql_errors(result)
   #   expect(errors).to be_present
   def graphql_errors(result)
-    result['errors']
+    result["errors"]
   end
 end
 

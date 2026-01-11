@@ -178,6 +178,12 @@ docker compose exec api rails db:reset
 
 # テスト実行
 docker compose exec api rspec
+
+# RuboCop実行（コードスタイルチェック）
+docker compose exec api rubocop
+
+# RuboCop自動修正
+docker compose exec api rubocop -a
 ```
 
 ## ディレクトリ構造
@@ -231,6 +237,32 @@ delegation_poker/
 - `RAILS_PORT`: Rails APIのポート（デフォルト: 3001）
 - `POSTGRES_PORT`: PostgreSQLのポート（デフォルト: 5433）
 - フロントエンドのポートは`frontend/package.json`の`dev`スクリプトで`--port`オプションを指定して変更できます（デフォルト: 8088）
+
+## コードスタイル
+
+このプロジェクトでは、RuboCopを使用してコードスタイルを統一しています。
+
+### RuboCopの実行
+
+```bash
+# コードスタイルチェック
+docker compose exec api rubocop
+
+# 自動修正可能な問題を修正
+docker compose exec api rubocop -a
+
+# 特定のファイルをチェック
+docker compose exec api rubocop app/models/room.rb
+```
+
+### RuboCop設定
+
+RuboCopの設定は`.rubocop.yml`に記載されています。主な設定：
+
+- Ruby 3.3をターゲット
+- 行の最大長: 120文字（specファイルを除く）
+- Rails向けのルールを有効化
+- RSpec向けのルールを有効化
 
 ## Delegation Pokerの使い方
 

@@ -1,11 +1,11 @@
-require 'rails_helper'
+require "rails_helper"
 
 RSpec.describe Mutations::RevealTopic, type: :graphql do
-  describe '#resolve' do
+  describe "#resolve" do
     let(:room) { create(:room) }
-    let(:topic) { create(:topic, room: room, status: 'voting') }
+    let(:topic) { create(:topic, room: room, status: "current_voting") }
 
-    it 'トピックの投票結果を公開する' do
+    it "トピックの投票結果を公開する" do
       result = execute_mutation(
         mutation: <<~GRAPHQL,
           mutation RevealTopic($topicId: ID!) {
@@ -18,17 +18,17 @@ RSpec.describe Mutations::RevealTopic, type: :graphql do
             }
           }
         GRAPHQL
-        variables: { topicId: topic.id }
+        variables: { topicId: topic.id },
       )
 
       data = graphql_data(result)
       expect(data).to be_present
-      expect(data['revealTopic']['topic']['status']).to eq('revealed')
-      expect(data['revealTopic']['errors']).to eq([])
+      expect(data["revealTopic"]["topic"]["status"]).to eq("CURRENT_REVEALED")
+      expect(data["revealTopic"]["errors"]).to eq([])
     end
 
-    it '既に公開されているトピックの場合エラーを返す' do
-      topic.update!(status: 'revealed')
+    it "既に公開されているトピックの場合エラーを返す" do
+      topic.update!(status: "current_revealed")
 
       result = execute_mutation(
         mutation: <<~GRAPHQL,
@@ -41,14 +41,14 @@ RSpec.describe Mutations::RevealTopic, type: :graphql do
             }
           }
         GRAPHQL
-        variables: { topicId: topic.id }
+        variables: { topicId: topic.id },
       )
 
       data = graphql_data(result)
-      expect(data['revealTopic']['errors']).to include('既に結果が公開されています')
+      expect(data["revealTopic"]["errors"]).to include("既に結果が公開されています")
     end
 
-    it '存在しないトピックIDの場合エラーを返す' do
+    it "存在しないトピックIDの場合エラーを返す" do
       result = execute_mutation(
         mutation: <<~GRAPHQL,
           mutation RevealTopic($topicId: ID!) {
@@ -60,11 +60,11 @@ RSpec.describe Mutations::RevealTopic, type: :graphql do
             }
           }
         GRAPHQL
-        variables: { topicId: '00000000-0000-0000-0000-000000000000' }
+        variables: { topicId: "00000000-0000-0000-0000-000000000000" },
       )
 
       data = graphql_data(result)
-      expect(data['revealTopic']['errors']).to include('トピックが見つかりません')
+      expect(data["revealTopic"]["errors"]).to include("トピックが見つかりません")
     end
   end
 end

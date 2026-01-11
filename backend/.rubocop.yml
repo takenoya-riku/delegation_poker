@@ -1,0 +1,107 @@
+plugins:
+  - rubocop-rails
+  - rubocop-rspec
+
+AllCops:
+  TargetRubyVersion: 3.3
+  NewCops: enable
+  SuggestExtensions: false
+  Exclude:
+    - 'db/**/*'
+    - 'bin/**/*'
+    - 'config/**/*'
+    - 'node_modules/**/*'
+    - 'vendor/**/*'
+    - 'tmp/**/*'
+    - 'log/**/*'
+    - 'spec/spec_helper.rb'
+    - 'spec/rails_helper.rb'
+
+# スタイル設定
+Style/Documentation:
+  Enabled: false
+
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+# レイアウト設定
+Layout/LineLength:
+  Max: 120
+  Exclude:
+    - 'spec/**/*'
+
+# Rails設定
+Rails/ApplicationRecord:
+  Enabled: true
+
+Rails/SkipsModelValidations:
+  Enabled: true
+
+# RSpec設定
+RSpec/ExampleLength:
+  Max: 30  # 統合テストでは長くなる可能性があるため緩和
+
+RSpec/MultipleExpectations:
+  Max: 8  # 統合テストでは複数の期待が必要な場合があるため緩和
+
+RSpec/NestedGroups:
+  Max: 4
+
+RSpec/ContextWording:
+  Enabled: false
+  # 日本語のcontext説明を使用しているため無効化
+
+RSpec/DescribedClass:
+  Enabled: false
+  # 明示的なクラス名の使用を許可
+
+RSpec/DescribeClass:
+  Exclude:
+    - 'spec/graphql/**/*'
+  # GraphQLクエリのテストでは文字列でのdescribeを使用
+
+# メトリクス設定
+Metrics/AbcSize:
+  Max: 25  # Serviceクラスの複雑度を考慮して緩和
+
+Metrics/MethodLength:
+  Max: 30
+  Exclude:
+    - 'spec/**/*'
+    - 'app/services/vote_service.rb'  # 複雑なビジネスロジックのため除外
+
+Metrics/ClassLength:
+  Max: 200
+  Exclude:
+    - 'spec/**/*'
+
+Metrics/BlockLength:
+  Exclude:
+    - 'spec/**/*'
+    - 'config/**/*'
+    - 'db/migrate/**/*'
+
+# 命名規則
+Naming/VariableNumber:
+  Enabled: false
+
+Naming/MethodParameterName:
+  AllowedNames:
+    - e  # エラーハンドリングで一般的な名前
+    - ex # 例外オブジェクト
+
+# その他
+Style/HashSyntax:
+  EnforcedStyle: ruby19
+
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
+
+Style/TrailingCommaInArguments:
+  EnforcedStyleForMultiline: comma
+
+Style/TrailingCommaInArrayLiteral:
+  EnforcedStyleForMultiline: comma
+
+Style/TrailingCommaInHashLiteral:
+  EnforcedStyleForMultiline: comma

@@ -9,11 +9,9 @@ module Mutations
 
     def resolve(topic_id:)
       topic = Topic.find_by(id: topic_id)
-      return { success: false, errors: ['トピックが見つかりません'] } unless topic
+      return { success: false, errors: ["トピックが見つかりません"] } unless topic
 
-      unless topic.status == 'organizing'
-        return { success: false, errors: ['整理フェーズのトピックのみ削除できます'] }
-      end
+      return { success: false, errors: ["整理フェーズのトピックのみ削除できます"] } unless topic.status == "organizing"
 
       if topic.destroy
         { success: true, errors: [] }

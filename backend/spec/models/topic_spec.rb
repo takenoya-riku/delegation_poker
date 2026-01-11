@@ -1,27 +1,32 @@
-require 'rails_helper'
+require "rails_helper"
 
 RSpec.describe Topic, type: :model do
-  describe 'バリデーション' do
-    it { should validate_presence_of(:title) }
-    it { should validate_presence_of(:status) }
-    it { should validate_inclusion_of(:status).in_array(%w[voting revealed]) }
-  end
+  subject(:topic) { build(:topic) }
 
-  describe 'アソシエーション' do
-    it { should belong_to(:room) }
-    it { should have_many(:votes).dependent(:destroy) }
-  end
+  describe "バリデーション" do
+    it { is_expected.to validate_presence_of(:title) }
+    it { is_expected.to validate_presence_of(:status) }
 
-  describe '#reveal!' do
-    it 'ステータスをrevealedに変更する' do
-      topic = create(:topic, status: 'voting')
-      topic.reveal!
-      expect(topic.status).to eq('revealed')
+    it do
+      expect(topic).to validate_inclusion_of(:status).in_array(%w[draft organizing current_voting current_revealed desired_voting desired_revealed completed])
     end
   end
 
-  describe '#all_participants_voted?' do
-    it 'すべての参加者が投票した場合trueを返す' do
+  describe "アソシエーション" do
+    it { is_expected.to belong_to(:room) }
+    it { is_expected.to have_many(:votes).dependent(:destroy) }
+  end
+
+  describe "#reveal!" do
+    it "ステータスをcurrent_revealedに変更する" do
+      topic = create(:topic, status: "current_voting")
+      topic.reveal!
+      expect(topic.status).to eq("current_revealed")
+    end
+  end
+
+  describe "#all_participants_voted?" do
+    it "すべての参加者が投票した場合trueを返す" do
       room = create(:room)
       participant1 = create(:participant, room: room)
       participant2 = create(:participant, room: room)
@@ -32,7 +37,7 @@ RSpec.describe Topic, type: :model do
       expect(topic.all_participants_voted?).to be true
     end
 
-    it '一部の参加者が投票していない場合falseを返す' do
+    it "一部の参加者が投票していない場合falseを返す" do
       room = create(:room)
       participant1 = create(:participant, room: room)
       create(:participant, room: room)

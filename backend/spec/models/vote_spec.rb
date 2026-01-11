@@ -1,18 +1,18 @@
-require 'rails_helper'
+require "rails_helper"
 
 RSpec.describe Vote, type: :model do
-  describe 'バリデーション' do
-    it { should validate_presence_of(:level) }
-    it { should validate_inclusion_of(:level).in_array([1, 2, 3, 4, 5, 6, 7]) }
+  describe "バリデーション" do
+    it { is_expected.to validate_presence_of(:level) }
+    it { is_expected.to validate_inclusion_of(:level).in_array([1, 2, 3, 4, 5, 6, 7]) }
   end
 
-  describe 'アソシエーション' do
-    it { should belong_to(:topic) }
-    it { should belong_to(:participant) }
+  describe "アソシエーション" do
+    it { is_expected.to belong_to(:topic) }
+    it { is_expected.to belong_to(:participant) }
   end
 
-  describe 'ユニーク制約' do
-    it '同じトピックと参加者の組み合わせは1つまで' do
+  describe "ユニーク制約" do
+    it "同じトピックと参加者の組み合わせは1つまで" do
       topic = create(:topic)
       participant = create(:participant, room: topic.room)
       create(:vote, topic: topic, participant: participant)
@@ -22,9 +22,9 @@ RSpec.describe Vote, type: :model do
     end
   end
 
-  describe 'バリデーション: topic_must_be_voting' do
-    it '投票中のトピックにのみ投票できる' do
-      topic = create(:topic, status: 'revealed')
+  describe "バリデーション: topic_must_be_voting" do
+    it "投票中のトピックにのみ投票できる" do
+      topic = create(:topic, status: "current_revealed")
       participant = create(:participant, room: topic.room)
       vote = build(:vote, topic: topic, participant: participant)
 

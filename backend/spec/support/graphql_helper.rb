@@ -19,7 +19,7 @@ module GraphQLHelper
     params[:variables] = variables if variables.present?
     params[:operationName] = operation_name if operation_name.present?
 
-    post '/graphql', params: params, as: :json
+    post "/graphql", params: params, as: :json
   end
 
   # GraphQLミューテーションをHTTP経由で送信するヘルパー

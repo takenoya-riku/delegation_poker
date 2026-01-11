@@ -1,16 +1,21 @@
-require 'rails_helper'
+require "rails_helper"
 
 RSpec.describe Mutations::Vote, type: :graphql do
-  describe '#resolve' do
+  describe "#resolve" do
     let(:room) { create(:room) }
     let(:participant) { create(:participant, room: room) }
     let(:topic) { create(:topic, room: room) }
 
-    it '投票する' do
+    it "投票する" do
       result = execute_mutation(
         mutation: <<~GRAPHQL,
-          mutation Vote($topicId: ID!, $participantId: ID!, $level: Int!) {
-            vote(topicId: $topicId, participantId: $participantId, level: $level) {
+          mutation Vote($topicId: ID!, $participantId: ID!, $level: Int!, $voteType: VoteTypeEnum!) {
+            vote(
+              topicId: $topicId,
+              participantId: $participantId,
+              level: $level,
+              voteType: $voteType
+            ) {
               vote {
                 id
                 level
@@ -22,23 +27,29 @@ RSpec.describe Mutations::Vote, type: :graphql do
         variables: {
           topicId: topic.id,
           participantId: participant.id,
-          level: 5
-        }
+          level: 5,
+          voteType: "CURRENT_STATE",
+        },
       )
 
       data = graphql_data(result)
       expect(data).to be_present
-      expect(data['vote']['vote']['level']).to eq(5)
-      expect(data['vote']['errors']).to eq([])
+      expect(data["vote"]["vote"]["level"]).to eq(5)
+      expect(data["vote"]["errors"]).to eq([])
     end
 
-    it '同じトピックに再度投票すると更新される' do
+    it "同じトピックに再度投票すると更新される" do
       create(:vote, topic: topic, participant: participant, level: 3)
 
       result = execute_mutation(
         mutation: <<~GRAPHQL,
-          mutation Vote($topicId: ID!, $participantId: ID!, $level: Int!) {
-            vote(topicId: $topicId, participantId: $participantId, level: $level) {
+          mutation Vote($topicId: ID!, $participantId: ID!, $level: Int!, $voteType: VoteTypeEnum!) {
+            vote(
+              topicId: $topicId,
+              participantId: $participantId,
+              level: $level,
+              voteType: $voteType
+            ) {
               vote {
                 level
               }
@@ -49,19 +60,25 @@ RSpec.describe Mutations::Vote, type: :graphql do
         variables: {
           topicId: topic.id,
           participantId: participant.id,
-          level: 7
-        }
+          level: 7,
+          voteType: "CURRENT_STATE",
+        },
       )
 
       data = graphql_data(result)
-      expect(data['vote']['vote']['level']).to eq(7)
+      expect(data["vote"]["vote"]["level"]).to eq(7)
     end
 
-    it '無効な権限レベルの場合エラーを返す' do
+    it "無効な権限レベルの場合エラーを返す" do
       result = execute_mutation(
         mutation: <<~GRAPHQL,
-          mutation Vote($topicId: ID!, $participantId: ID!, $level: Int!) {
-            vote(topicId: $topicId, participantId: $participantId, level: $level) {
+          mutation Vote($topicId: ID!, $participantId: ID!, $level: Int!, $voteType: VoteTypeEnum!) {
+            vote(
+              topicId: $topicId,
+              participantId: $participantId,
+              level: $level,
+              voteType: $voteType
+            ) {
               vote {
                 id
               }
@@ -72,12 +89,13 @@ RSpec.describe Mutations::Vote, type: :graphql do
         variables: {
           topicId: topic.id,
           participantId: participant.id,
-          level: 10
-        }
+          level: 10,
+          voteType: "CURRENT_STATE",
+        },
       )
 
       data = graphql_data(result)
-      expect(data['vote']['errors']).to be_present
+      expect(data["vote"]["errors"]).to be_present
     end
   end
 end

@@ -11,8 +11,8 @@ module Mutations
       result = StartDesiredStateVotingService.call(topic_id: topic_id)
 
       {
-        topic: result.topic,
-        errors: result.errors
+        topic: result[:topic],
+        errors: result[:errors],
       }
     end
   end

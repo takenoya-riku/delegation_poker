@@ -9,11 +9,9 @@ module Mutations
 
     def resolve(topic_id:)
       topic = Topic.find_by(id: topic_id)
-      return { topic: nil, errors: ['トピックが見つかりません'] } unless topic
+      return { topic: nil, errors: ["トピックが見つかりません"] } unless topic
 
-      unless topic.status == 'current_voting'
-        return { topic: topic, errors: ['現状確認投票中のトピックのみ公開できます'] }
-      end
+      return { topic: topic, errors: ["現状確認投票中のトピックのみ公開できます"] } unless topic.status == "current_voting"
 
       if topic.reveal_current_state!
         { topic: topic, errors: [] }

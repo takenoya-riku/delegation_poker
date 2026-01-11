@@ -4,7 +4,7 @@ class Vote < ApplicationRecord
 
   validates :level, presence: true, inclusion: { in: 1..7 }
   validates :vote_type, presence: true, inclusion: { in: %w[current_state desired_state] }
-  validates :topic_id, uniqueness: { scope: [:participant_id, :vote_type] }
+  validates :topic_id, uniqueness: { scope: %i[participant_id vote_type] }
 
   validate :topic_must_be_in_voting_phase
 
@@ -14,15 +14,10 @@ class Vote < ApplicationRecord
     return unless topic
 
     case vote_type
-    when 'current_state'
-      unless topic.status == 'current_voting'
-        errors.add(:topic, 'は現状確認投票中でなければなりません')
-      end
-    when 'desired_state'
-      unless topic.status == 'desired_voting'
-        errors.add(:topic, 'はありたい姿投票中でなければなりません')
-      end
+    when "current_state"
+      errors.add(:topic, "は現状確認投票中でなければなりません") unless topic.status == "current_voting"
+    when "desired_state"
+      errors.add(:topic, "はありたい姿投票中でなければなりません") unless topic.status == "desired_voting"
     end
   end
 end
-

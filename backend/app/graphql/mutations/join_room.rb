@@ -16,9 +16,9 @@ module Mutations
       result = JoinRoomService.call(code: code, name: name)
 
       {
-        participant: result.participant,
-        room: result.room,
-        errors: result.errors
+        participant: result[:participant],
+        room: result[:room],
+        errors: result[:errors],
       }
     end
   end

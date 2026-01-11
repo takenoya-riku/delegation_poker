@@ -11,12 +11,12 @@ module Mutations
     def resolve(source_topic_id:, target_topic_id:)
       result = MergeTopicsService.call(
         source_topic_id: source_topic_id,
-        target_topic_id: target_topic_id
+        target_topic_id: target_topic_id,
       )
 
       {
-        topic: result.topic,
-        errors: result.errors
+        topic: result[:topic],
+        errors: result[:errors],
       }
     end
   end

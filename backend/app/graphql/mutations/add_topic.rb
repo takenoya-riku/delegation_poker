@@ -16,8 +16,8 @@ module Mutations
       result = AddTopicService.call(room_id: room_id, title: title, description: description)
 
       {
-        topic: result.topic,
-        errors: result.errors
+        topic: result[:topic],
+        errors: result[:errors],
       }
     end
   end

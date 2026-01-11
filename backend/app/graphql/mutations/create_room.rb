@@ -14,8 +14,8 @@ module Mutations
       result = CreateRoomService.call(name: name)
 
       {
-        room: result.room,
-        errors: result.errors
+        room: result[:room],
+        errors: result[:errors],
       }
     end
   end

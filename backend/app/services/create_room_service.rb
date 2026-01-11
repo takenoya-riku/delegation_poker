@@ -5,9 +5,9 @@ class CreateRoomService
     room = Room.new(name: name)
 
     if room.save
-      OpenStruct.new(success: true, room: room, errors: [])
+      { success: true, room: room, errors: [] }
     else
-      OpenStruct.new(success: false, room: room, errors: room.errors.full_messages)
+      { success: false, room: room, errors: room.errors.full_messages }
     end
   end
 end
