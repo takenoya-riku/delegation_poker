@@ -38,17 +38,31 @@
       </div>
     </div>
 
-    <div v-if="organizingTopics.length > 0" class="flex justify-end">
-      <button
-        v-if="props.isRoomMaster"
-        @click="handleStartVoting"
-        class="btn-gradient px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
-        :disabled="starting"
-      >
-        <span v-if="starting" class="loading loading-spinner loading-sm mr-2"></span>
-        {{ starting ? '投票フェーズに移行中...' : '📊 現状確認投票に進む' }}
-      </button>
-      <span v-else class="text-sm text-gray-500">投票フェーズへの移行はルームマスターのみ可能です</span>
+    <div v-if="organizingTopics.length > 0" class="space-y-3">
+      <div v-if="revertError" class="alert alert-error shadow-md animate-fade-in">
+        <span>{{ revertError }}</span>
+      </div>
+      <div class="flex flex-col gap-3 sm:flex-row sm:justify-end">
+        <template v-if="props.isRoomMaster">
+          <button
+            @click="handleRevertToDraft"
+            class="btn px-8 py-3 rounded-xl font-semibold shadow-lg border-2 border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 transform hover:scale-105"
+            :disabled="reverting"
+          >
+            <span v-if="reverting" class="loading loading-spinner loading-sm mr-2"></span>
+            {{ reverting ? '対象出しに戻しています...' : '↩️ 対象出しに戻す' }}
+          </button>
+          <button
+            @click="handleStartVoting"
+            class="btn-gradient px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+            :disabled="starting"
+          >
+            <span v-if="starting" class="loading loading-spinner loading-sm mr-2"></span>
+            {{ starting ? '投票フェーズに移行中...' : '📊 現状確認投票に進む' }}
+          </button>
+        </template>
+        <span v-else class="text-sm text-gray-500">投票フェーズへの移行はルームマスターのみ可能です</span>
+      </div>
     </div>
 
     <!-- 編集モーダル -->
@@ -92,6 +106,7 @@
 
 <script setup lang="ts">
 import { useMutation } from '@urql/vue'
+import gql from 'graphql-tag'
 import { UpdateTopicDocument, DeleteTopicDocument, OrganizeTopicDocument } from '~/graphql/generated/types'
 
 const props = defineProps<{
@@ -112,6 +127,8 @@ const organizingTopics = computed(() => props.topics.filter(t => t.status === 'O
 
 const deleting = ref(false)
 const starting = ref(false)
+const reverting = ref(false)
+const revertError = ref('')
 const editingTopic = ref<typeof props.topics[0] | null>(null)
 const editTitle = ref('')
 const editDescription = ref('')
@@ -132,6 +149,17 @@ const closeEditModal = () => {
 const updateTopicMutation = useMutation(UpdateTopicDocument)
 const deleteTopicMutation = useMutation(DeleteTopicDocument)
 const organizeTopicMutation = useMutation(OrganizeTopicDocument)
+const revertToDraftMutation = useMutation(gql`
+  mutation RevertToDraft($topicId: ID!) {
+    revertToDraft(topicId: $topicId) {
+      topic {
+        id
+        status
+      }
+      errors
+    }
+  }
+`)
 
 const handleDelete = async (topicId: string) => {
   if (!confirm('このトピックを削除しますか？')) return
@@ -169,5 +197,39 @@ const handleStartVoting = async () => {
   await Promise.all(promises)
   emit('refresh')
   starting.value = false
+}
+
+const handleRevertToDraft = async () => {
+  if (organizingTopics.value.length === 0) return
+  if (!confirm('整理フェーズを取り消して対象出しに戻しますか？')) return
+
+  reverting.value = true
+  revertError.value = ''
+
+  const results = await Promise.all(
+    organizingTopics.value.map(topic =>
+      revertToDraftMutation.executeMutation({ topicId: topic.id })
+    )
+  )
+
+  const errors = results
+    .map((result, index) => {
+      if (result.error) {
+        return `${organizingTopics.value[index].title}: ${result.error.message}`
+      }
+      if (result.data?.revertToDraft?.errors?.length > 0) {
+        return `${organizingTopics.value[index].title}: ${result.data.revertToDraft.errors[0]}`
+      }
+      return null
+    })
+    .filter(Boolean)
+
+  if (errors.length > 0) {
+    revertError.value = errors.join(', ')
+  } else {
+    emit('refresh')
+  }
+
+  reverting.value = false
 }
 </script>

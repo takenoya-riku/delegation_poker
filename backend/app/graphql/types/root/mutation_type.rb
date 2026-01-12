@@ -12,6 +12,7 @@ module Types
       field :merge_topics, mutation: Mutations::MergeTopics
       field :organize_topic, mutation: Mutations::OrganizeTopic
       field :start_organizing, mutation: Mutations::StartOrganizing
+      field :revert_to_draft, mutation: Mutations::RevertToDraft
       field :vote, mutation: Mutations::Vote
       field :reveal_current_state, mutation: Mutations::RevealCurrentState
       field :start_desired_state_voting, mutation: Mutations::StartDesiredStateVoting

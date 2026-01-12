@@ -94,6 +94,18 @@ mutation CreateRoom($name: String!) {
 }
 ```
 
+```graphql
+mutation RevertToDraft($topicId: ID!) {
+  revertToDraft(topicId: $topicId) {
+    topic {
+      id
+      status
+    }
+    errors
+  }
+}
+```
+
 ## 開発ガイド
 
 ### 新しいMutationの追加例

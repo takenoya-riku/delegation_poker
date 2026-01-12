@@ -45,6 +45,37 @@
             <div v-if="deleteError" class="alert alert-error mt-4 shadow-md animate-fade-in">
               <span>{{ deleteError }}</span>
             </div>
+            <div class="mt-6">
+              <div class="flex items-center gap-3 mb-3">
+                <span class="text-sm text-gray-600">現在のフロー:</span>
+                <span class="badge badge-lg px-4 py-2 text-sm font-semibold" :class="currentPhaseBadgeClass">
+                  {{ currentPhaseLabel }}
+                </span>
+              </div>
+              <div class="grid gap-3 sm:grid-cols-3">
+                <div class="flex items-center gap-3 rounded-xl border-2 px-4 py-3" :class="phaseStepClass('draft')">
+                  <span class="text-xl">{{ phaseStepIcon('draft') }}</span>
+                  <div>
+                    <p class="text-sm font-semibold">対象出し</p>
+                    <p class="text-xs text-gray-600">話し合いたい内容を追加</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3 rounded-xl border-2 px-4 py-3" :class="phaseStepClass('organizing')">
+                  <span class="text-xl">{{ phaseStepIcon('organizing') }}</span>
+                  <div>
+                    <p class="text-sm font-semibold">整理</p>
+                    <p class="text-xs text-gray-600">重複をまとめる</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3 rounded-xl border-2 px-4 py-3" :class="phaseStepClass('voting')">
+                  <span class="text-xl">{{ phaseStepIcon('voting') }}</span>
+                  <div>
+                    <p class="text-sm font-semibold">投票</p>
+                    <p class="text-xs text-gray-600">現状/理想を評価</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -170,6 +201,49 @@ const votingTopics = computed(() => {
            ['current_voting', 'current_revealed', 'desired_voting', 'desired_revealed', 'completed'].includes(t.status)
   })
 })
+
+const currentPhase = computed(() => {
+  if (hasNoTopics.value || hasDraftTopics.value) return 'draft'
+  if (hasOrganizingTopics.value) return 'organizing'
+  return 'voting'
+})
+
+const currentPhaseLabel = computed(() => {
+  if (currentPhase.value === 'draft') return '話し合いたい対象出し'
+  if (currentPhase.value === 'organizing') return '整理フェーズ'
+  return '投票フェーズ'
+})
+
+const currentPhaseBadgeClass = computed(() => {
+  if (currentPhase.value === 'draft') return 'badge-neutral'
+  if (currentPhase.value === 'organizing') return 'badge-warning'
+  return 'badge-info'
+})
+
+const phaseStepClass = (phase: 'draft' | 'organizing' | 'voting') => {
+  if (currentPhase.value === phase) {
+    if (phase === 'draft') return 'phase-draft border-gray-400'
+    if (phase === 'organizing') return 'phase-organizing border-yellow-400'
+    return 'phase-current-voting border-blue-400'
+  }
+
+  if (currentPhase.value === 'organizing' && phase === 'draft') {
+    return 'bg-gray-100 border-gray-200'
+  }
+
+  if (currentPhase.value === 'voting' && (phase === 'draft' || phase === 'organizing')) {
+    return 'bg-gray-100 border-gray-200'
+  }
+
+  return 'bg-white border-gray-200'
+}
+
+const phaseStepIcon = (phase: 'draft' | 'organizing' | 'voting') => {
+  if (currentPhase.value === phase) return '▶️'
+  if (currentPhase.value === 'organizing' && phase === 'draft') return '✅'
+  if (currentPhase.value === 'voting' && (phase === 'draft' || phase === 'organizing')) return '✅'
+  return '⬜️'
+}
 
 // ローカルストレージから参加者IDを取得（簡易実装）
 const currentParticipantId = ref<string | null>(null)
