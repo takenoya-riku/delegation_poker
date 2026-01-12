@@ -8,17 +8,12 @@ module Mutations
     field :errors, [String], null: false
 
     def resolve(topic_id:)
-      # まず整理フェーズに移行
-      organize_result = OrganizeTopicService.call(topic_id: topic_id)
-      return { topic: organize_result[:topic], errors: organize_result[:errors] } unless organize_result[:success]
+      result = StartCurrentVotingService.call(topic_id: topic_id)
 
-      # 整理フェーズから現状投票フェーズに移行
-      topic = organize_result[:topic]
-      if topic.start_current_voting!
-        { topic: topic, errors: [] }
-      else
-        { topic: topic, errors: topic.errors.full_messages }
-      end
+      {
+        topic: result[:topic],
+        errors: result[:errors],
+      }
     end
   end
 end

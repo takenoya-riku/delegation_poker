@@ -29,6 +29,14 @@ class VoteService
       }
     end
 
+    unless can_vote?(topic: topic, vote_type: vote_type)
+      return {
+        success: false,
+        vote: nil,
+        errors: ["この投票はすでに締め切られています"],
+      }
+    end
+
     vote = ::Vote.find_or_initialize_by(
       topic: topic,
       participant: participant,
@@ -48,6 +56,19 @@ class VoteService
         vote: vote,
         errors: vote.errors.full_messages,
       }
+    end
+  end
+
+  private
+
+  def can_vote?(topic:, vote_type:)
+    case vote_type
+    when "current_state"
+      topic.status == "current_voting"
+    when "desired_state"
+      topic.status == "desired_voting"
+    else
+      false
     end
   end
 end

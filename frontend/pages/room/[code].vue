@@ -102,13 +102,11 @@
         </div>
 
         <div v-else class="space-y-6 animate-fade-in" style="animation-delay: 0.1s">
-          <TopicCard
-            v-for="(topic, index) in votingTopics"
-            :key="topic.id"
-            :topic="topic"
+          <VotingBoard
+            :topics="votingTopics"
             :participant-id="currentParticipantId"
             :total-participants="room.participants.length"
-            :style="{ animationDelay: `${0.1 + index * 0.05}s` }"
+            :is-room-master="isRoomMaster"
             @refresh="handleRefresh"
           />
         </div>

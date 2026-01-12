@@ -101,5 +101,35 @@ RSpec.describe VoteService, type: :service do
         expect(result[:errors]).not_to be_empty
       end
     end
+
+    context "投票フェーズが終了している場合" do
+      it "現状確認の投票を受け付けない" do
+        topic.update!(status: "current_revealed")
+
+        result = VoteService.call(
+          topic_id: topic.id,
+          participant_id: participant.id,
+          level: 3,
+          vote_type: "current_state",
+        )
+
+        expect(result[:success]).to be false
+        expect(result[:errors]).to include("この投票はすでに締め切られています")
+      end
+
+      it "ありたい姿の投票が開始前なら受け付けない" do
+        topic.update!(status: "current_voting")
+
+        result = VoteService.call(
+          topic_id: topic.id,
+          participant_id: participant.id,
+          level: 4,
+          vote_type: "desired_state",
+        )
+
+        expect(result[:success]).to be false
+        expect(result[:errors]).to include("この投票はすでに締め切られています")
+      end
+    end
   end
 end
