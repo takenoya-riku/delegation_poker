@@ -20,6 +20,7 @@
 
 - 新しい機能には必ずテストを追加
 - バックエンドを更新した際は必ず`rspec`と`rubocop -a`を実行する
+- マイグレーションファイルを変更した際は`rails db:migrate`とGraphQLスキーマの更新（`rails graphql:schema:dump`）を行う
 - テスト戦略: Request Spec（統合テスト）、GraphQL結合テスト、単体テストの3層構造
 - Request Spec: ControllerをHTTP経由でテスト（`spec/requests/`）
 - GraphQL結合テスト: ResolverやMutationをスキーマ直接実行でテスト（`spec/graphql/`）

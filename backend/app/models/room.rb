@@ -1,6 +1,7 @@
 class Room < ApplicationRecord
   has_many :participants, dependent: :destroy
   has_many :topics, dependent: :destroy
+  belongs_to :room_master, class_name: "Participant", optional: true
 
   validates :name, presence: true
   validates :code, presence: true, uniqueness: true, length: { is: 6 }

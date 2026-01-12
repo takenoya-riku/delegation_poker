@@ -1,5 +1,6 @@
-schema: http://localhost:3001/graphql
+schema: ../backend/schema.graphql
 documents: 'graphql/**/*.graphql'
+concurrency: 1
 generates:
   graphql/generated/types.ts:
     plugins:

@@ -16,6 +16,8 @@ class JoinRoomService
     participant = room.participants.build(name: name)
 
     if participant.save
+      room.update!(room_master_id: participant.id) if room.room_master_id.nil?
+
       {
         success: true,
         participant: participant,

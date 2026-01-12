@@ -1,0 +1,6 @@
+mutation DeleteRoom($roomId: ID!, $participantId: ID!) {
+  deleteRoom(roomId: $roomId, participantId: $participantId) {
+    success
+    errors
+  }
+}

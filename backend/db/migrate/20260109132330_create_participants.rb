@@ -6,5 +6,7 @@ class CreateParticipants < ActiveRecord::Migration[8.0]
 
       t.timestamps
     end
+
+    add_foreign_key :rooms, :participants, column: :room_master_id
   end
 end

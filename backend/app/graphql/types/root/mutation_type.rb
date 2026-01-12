@@ -5,6 +5,7 @@ module Types
 
       field :create_room, mutation: Mutations::CreateRoom
       field :join_room, mutation: Mutations::JoinRoom
+      field :delete_room, mutation: Mutations::DeleteRoom
       field :add_topic, mutation: Mutations::AddTopic
       field :update_topic, mutation: Mutations::UpdateTopic
       field :delete_topic, mutation: Mutations::DeleteTopic

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_09_132338) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_11_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -28,7 +28,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_09_132338) do
     t.string "code", limit: 6, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.uuid "room_master_id"
     t.index ["code"], name: "index_rooms_on_code", unique: true
+    t.index ["room_master_id"], name: "index_rooms_on_room_master_id"
   end
 
   create_table "topics", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -56,6 +58,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_09_132338) do
   end
 
   add_foreign_key "participants", "rooms"
+  add_foreign_key "rooms", "participants", column: "room_master_id"
   add_foreign_key "topics", "rooms"
   add_foreign_key "votes", "participants"
   add_foreign_key "votes", "topics"

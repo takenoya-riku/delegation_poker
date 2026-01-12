@@ -30,6 +30,20 @@
                   </span>
                 </div>
               </div>
+              <div class="flex items-center gap-3">
+                <button
+                  v-if="isRoomMaster"
+                  class="btn btn-sm px-4 py-2 rounded-lg bg-gradient-to-r from-red-500 to-pink-500 text-white border-0 hover:from-red-600 hover:to-pink-600 transition-all duration-300 shadow-md hover:shadow-lg"
+                  :disabled="deletingRoom"
+                  @click="handleDeleteRoom"
+                >
+                  <span v-if="deletingRoom" class="loading loading-spinner loading-xs mr-1"></span>
+                  ルームを削除
+                </button>
+              </div>
+            </div>
+            <div v-if="deleteError" class="alert alert-error mt-4 shadow-md animate-fade-in">
+              <span>{{ deleteError }}</span>
             </div>
           </div>
         </div>
@@ -73,8 +87,8 @@
 </template>
 
 <script setup lang="ts">
-import { useQuery } from '@urql/vue'
-import { RoomDocument } from '~/graphql/generated/types'
+import { useMutation, useQuery } from '@urql/vue'
+import { DeleteRoomDocument, RoomDocument } from '~/graphql/generated/types'
 
 const route = useRoute()
 const code = route.params.code as string
@@ -88,9 +102,50 @@ const { data, fetching, error, executeQuery } = useQuery({
 const room = computed(() => data.value?.room)
 const hasLoaded = ref(false)
 const savedRoomsKey = 'saved_rooms'
+const deleteError = ref('')
+const deletingRoom = ref(false)
 
 const handleRefresh = () => {
   executeQuery({ requestPolicy: 'network-only' })
+}
+
+const deleteRoomMutation = useMutation(DeleteRoomDocument)
+
+const removeSavedRoom = (roomCode: string) => {
+  if (typeof window === 'undefined') return
+  const raw = localStorage.getItem(savedRoomsKey)
+  const parsed = raw ? JSON.parse(raw) : []
+  const rooms = Array.isArray(parsed) ? parsed : []
+  const filtered = rooms.filter((entry: { code: string }) => entry.code !== roomCode)
+  localStorage.setItem(savedRoomsKey, JSON.stringify(filtered))
+}
+
+const handleDeleteRoom = async () => {
+  if (!room.value || !currentParticipantId.value) return
+  if (!confirm('このルームを削除しますか？この操作は取り消せません。')) return
+
+  deletingRoom.value = true
+  deleteError.value = ''
+
+  const result = await deleteRoomMutation.executeMutation({
+    roomId: room.value.id,
+    participantId: currentParticipantId.value,
+  })
+
+  if (result.data?.deleteRoom?.success) {
+    const upperCode = room.value.code.toUpperCase()
+    removeSavedRoom(upperCode)
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(`participant_${upperCode}`)
+      localStorage.removeItem(`room_master_${upperCode}`)
+      sessionStorage.removeItem(`participant_session_${upperCode}`)
+    }
+    await navigateTo('/')
+  } else {
+    deleteError.value = result.data?.deleteRoom?.errors?.[0] || 'ルームの削除に失敗しました'
+  }
+
+  deletingRoom.value = false
 }
 
 let pollTimer: ReturnType<typeof setInterval> | null = null
