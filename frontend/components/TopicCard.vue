@@ -1,18 +1,34 @@
 <template>
-  <div :class="cardClass" class="card-modern shadow-xl transition-all duration-300 hover:shadow-2xl">
+  <div
+    :class="cardClass"
+    class="card-modern shadow-xl transition-all duration-300 hover:shadow-2xl"
+  >
     <div class="card-body p-6">
       <div class="flex items-start justify-between mb-4">
         <div class="flex-1">
-          <h3 class="card-title text-2xl font-bold text-gray-800 mb-2">{{ topic.title }}</h3>
-          <p v-if="topic.description" class="text-sm text-gray-600 mb-3">{{ topic.description }}</p>
+          <h3 class="card-title text-2xl font-bold text-gray-800 mb-2">
+            {{ topic.title }}
+          </h3>
+          <p
+            v-if="topic.description"
+            class="text-sm text-gray-600 mb-3"
+          >
+            {{ topic.description }}
+          </p>
         </div>
-        <div :class="badgeClass" class="badge badge-lg px-4 py-2 font-semibold shadow-md">
+        <div
+          :class="badgeClass"
+          class="badge badge-lg px-4 py-2 font-semibold shadow-md"
+        >
           {{ statusLabel }}
         </div>
       </div>
 
       <!-- 現状確認投票中 -->
-      <div v-if="topic.status === 'CURRENT_VOTING' || topic.status === 'current_voting'" class="mt-6">
+      <div
+        v-if="topic.status === 'CURRENT_VOTING' || topic.status === 'current_voting'"
+        class="mt-6"
+      >
         <div class="mb-4">
           <h4 class="text-lg font-semibold text-gray-700 mb-2 flex items-center gap-2">
             <span class="text-2xl">📊</span>
@@ -27,36 +43,68 @@
           :votes="topic.votes"
           @voted="$emit('refresh')"
         />
-        <div v-else class="alert alert-info shadow-md">
+        <div
+          v-else
+          class="alert alert-info shadow-md"
+        >
           <span>投票するにはルームに参加してください</span>
         </div>
-        <div v-if="canRevealCurrent" class="mt-6">
-          <button @click="handleRevealCurrent" class="btn-gradient-secondary w-full py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300" :disabled="revealing">
-            <span v-if="revealing" class="loading loading-spinner loading-sm mr-2"></span>
+        <div
+          v-if="canRevealCurrent"
+          class="mt-6"
+        >
+          <button
+            class="btn-gradient-secondary w-full py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+            :disabled="revealing"
+            @click="handleRevealCurrent"
+          >
+            <span
+              v-if="revealing"
+              class="loading loading-spinner loading-sm mr-2"
+            />
             {{ revealing ? '公開中...' : '✨ 現状確認結果を公開' }}
           </button>
         </div>
       </div>
 
       <!-- 現状確認結果公開済み -->
-      <div v-else-if="topic.status === 'CURRENT_REVEALED' || topic.status === 'current_revealed'" class="mt-6">
+      <div
+        v-else-if="topic.status === 'CURRENT_REVEALED' || topic.status === 'current_revealed'"
+        class="mt-6"
+      >
         <div class="mb-4">
           <h4 class="text-lg font-semibold text-gray-700 mb-2 flex items-center gap-2">
             <span class="text-2xl">✅</span>
             現状確認（結果）
           </h4>
         </div>
-        <VoteResults :votes="topic.votes" vote-type="current_state" />
-        <div v-if="canStartDesired" class="mt-6">
-          <button @click="handleStartDesired" class="btn-gradient w-full py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300" :disabled="starting">
-            <span v-if="starting" class="loading loading-spinner loading-sm mr-2"></span>
+        <VoteResults
+          :votes="topic.votes"
+          vote-type="current_state"
+        />
+        <div
+          v-if="canStartDesired"
+          class="mt-6"
+        >
+          <button
+            class="btn-gradient w-full py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+            :disabled="starting"
+            @click="handleStartDesired"
+          >
+            <span
+              v-if="starting"
+              class="loading loading-spinner loading-sm mr-2"
+            />
             {{ starting ? '開始中...' : '🎯 ありたい姿投票を開始' }}
           </button>
         </div>
       </div>
 
       <!-- ありたい姿投票中 -->
-      <div v-else-if="topic.status === 'DESIRED_VOTING' || topic.status === 'desired_voting'" class="mt-6">
+      <div
+        v-else-if="topic.status === 'DESIRED_VOTING' || topic.status === 'desired_voting'"
+        class="mt-6"
+      >
         <div class="mb-4">
           <h4 class="text-lg font-semibold text-gray-700 mb-2 flex items-center gap-2">
             <span class="text-2xl">🎯</span>
@@ -71,32 +119,54 @@
           :votes="topic.votes"
           @voted="$emit('refresh')"
         />
-        <div v-else class="alert alert-info shadow-md">
+        <div
+          v-else
+          class="alert alert-info shadow-md"
+        >
           <span>投票するにはルームに参加してください</span>
         </div>
-        <div v-if="canRevealDesired" class="mt-6">
-          <button @click="handleRevealDesired" class="btn-gradient-secondary w-full py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300" :disabled="revealing">
-            <span v-if="revealing" class="loading loading-spinner loading-sm mr-2"></span>
+        <div
+          v-if="canRevealDesired"
+          class="mt-6"
+        >
+          <button
+            class="btn-gradient-secondary w-full py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+            :disabled="revealing"
+            @click="handleRevealDesired"
+          >
+            <span
+              v-if="revealing"
+              class="loading loading-spinner loading-sm mr-2"
+            />
             {{ revealing ? '公開中...' : '✨ ありたい姿結果を公開' }}
           </button>
         </div>
       </div>
 
       <!-- ありたい姿結果公開済みまたは完了 -->
-      <div v-else-if="topic.status === 'DESIRED_REVEALED' || topic.status === 'desired_revealed' || topic.status === 'COMPLETED' || topic.status === 'completed'" class="mt-6 space-y-6">
+      <div
+        v-else-if="topic.status === 'DESIRED_REVEALED' || topic.status === 'desired_revealed' || topic.status === 'COMPLETED' || topic.status === 'completed'"
+        class="mt-6 space-y-6"
+      >
         <div>
           <h4 class="text-lg font-semibold text-gray-700 mb-3 flex items-center gap-2">
             <span class="text-2xl">📊</span>
             現状確認の投票結果
           </h4>
-          <VoteResults :votes="topic.votes" vote-type="current_state" />
+          <VoteResults
+            :votes="topic.votes"
+            vote-type="current_state"
+          />
         </div>
         <div>
           <h4 class="text-lg font-semibold text-gray-700 mb-3 flex items-center gap-2">
             <span class="text-2xl">🎯</span>
             ありたい姿の投票結果
           </h4>
-          <VoteResults :votes="topic.votes" vote-type="desired_state" />
+          <VoteResults
+            :votes="topic.votes"
+            vote-type="desired_state"
+          />
         </div>
       </div>
     </div>

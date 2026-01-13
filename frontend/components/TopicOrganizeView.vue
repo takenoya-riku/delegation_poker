@@ -6,18 +6,30 @@
           <div class="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-white text-xl font-bold shadow-lg">
             🔧
           </div>
-          <h2 class="card-title text-2xl text-gray-800">対象の整理</h2>
+          <h2 class="card-title text-2xl text-gray-800">
+            対象の整理
+          </h2>
         </div>
-        <p class="text-sm text-gray-600 ml-16">重複や類似の対象を統合・整理してください</p>
+        <p class="text-sm text-gray-600 ml-16">
+          重複や類似の対象を統合・整理してください
+        </p>
       </div>
     </div>
 
-    <div v-if="organizingTopics.length === 0" class="card-modern border-2 border-dashed border-yellow-300 bg-yellow-50 text-center py-12">
+    <div
+      v-if="organizingTopics.length === 0"
+      class="card-modern border-2 border-dashed border-yellow-300 bg-yellow-50 text-center py-12"
+    >
       <span class="text-5xl mb-4 block">📋</span>
-      <p class="text-gray-600 font-medium">整理する対象がありません</p>
+      <p class="text-gray-600 font-medium">
+        整理する対象がありません
+      </p>
     </div>
 
-    <div v-else class="space-y-4">
+    <div
+      v-else
+      class="space-y-4"
+    >
       <div
         v-for="(topic, index) in organizingTopics"
         :key="topic.id"
@@ -25,13 +37,34 @@
         :style="{ animationDelay: `${index * 0.05}s` }"
       >
         <div class="card-body p-5">
-          <h3 class="card-title text-xl text-gray-800 mb-2">{{ topic.title }}</h3>
-          <p v-if="topic.description" class="text-sm text-gray-600 mb-4">{{ topic.description }}</p>
-          <p class="text-xs text-gray-500 mb-4">作成者: {{ creatorName(topic) }}</p>
+          <h3 class="card-title text-xl text-gray-800 mb-2">
+            {{ topic.title }}
+          </h3>
+          <p
+            v-if="topic.description"
+            class="text-sm text-gray-600 mb-4"
+          >
+            {{ topic.description }}
+          </p>
+          <p class="text-xs text-gray-500 mb-4">
+            作成者: {{ creatorName(topic) }}
+          </p>
           <div class="card-actions justify-end">
-            <button @click="openEditModal(topic)" class="btn btn-sm px-4 py-2 rounded-lg bg-white border-2 border-gray-300 text-gray-700 hover:border-gray-400 hover:bg-gray-50 transition-all duration-300 shadow-md hover:shadow-lg">編集</button>
-            <button @click="handleDelete(topic.id)" class="btn btn-sm px-4 py-2 rounded-lg bg-gradient-to-r from-red-500 to-pink-500 text-white border-0 hover:from-red-600 hover:to-pink-600 transition-all duration-300 shadow-md hover:shadow-lg" :disabled="deleting">
-              <span v-if="deleting" class="loading loading-spinner loading-xs mr-1"></span>
+            <button
+              class="btn btn-sm px-4 py-2 rounded-lg bg-white border-2 border-gray-300 text-gray-700 hover:border-gray-400 hover:bg-gray-50 transition-all duration-300 shadow-md hover:shadow-lg"
+              @click="openEditModal(topic)"
+            >
+              編集
+            </button>
+            <button
+              class="btn btn-sm px-4 py-2 rounded-lg bg-gradient-to-r from-red-500 to-pink-500 text-white border-0 hover:from-red-600 hover:to-pink-600 transition-all duration-300 shadow-md hover:shadow-lg"
+              :disabled="deleting"
+              @click="handleDelete(topic.id)"
+            >
+              <span
+                v-if="deleting"
+                class="loading loading-spinner loading-xs mr-1"
+              />
               削除
             </button>
           </div>
@@ -39,35 +72,53 @@
       </div>
     </div>
 
-    <div v-if="organizingTopics.length > 0" class="space-y-3">
-      <div v-if="revertError" class="alert alert-error shadow-md animate-fade-in">
+    <div
+      v-if="organizingTopics.length > 0"
+      class="space-y-3"
+    >
+      <div
+        v-if="revertError"
+        class="alert alert-error shadow-md animate-fade-in"
+      >
         <span>{{ revertError }}</span>
       </div>
       <div class="flex flex-col gap-3 sm:flex-row sm:justify-end">
         <template v-if="props.isRoomMaster">
           <button
-            @click="handleRevertToDraft"
             class="btn px-8 py-3 rounded-xl font-semibold shadow-lg border-2 border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 transform hover:scale-105"
             :disabled="reverting"
+            @click="handleRevertToDraft"
           >
-            <span v-if="reverting" class="loading loading-spinner loading-sm mr-2"></span>
+            <span
+              v-if="reverting"
+              class="loading loading-spinner loading-sm mr-2"
+            />
             {{ reverting ? '対象出しに戻しています...' : '↩️ 対象出しに戻す' }}
           </button>
           <button
-            @click="handleStartVoting"
             class="btn-gradient px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
             :disabled="starting"
+            @click="handleStartVoting"
           >
-            <span v-if="starting" class="loading loading-spinner loading-sm mr-2"></span>
+            <span
+              v-if="starting"
+              class="loading loading-spinner loading-sm mr-2"
+            />
             {{ starting ? '投票フェーズに移行中...' : '📊 投票に進む' }}
           </button>
         </template>
-        <span v-else class="text-sm text-gray-500">投票フェーズへの移行はルームマスターのみ可能です</span>
+        <span
+          v-else
+          class="text-sm text-gray-500"
+        >投票フェーズへの移行はルームマスターのみ可能です</span>
       </div>
     </div>
 
     <!-- 編集モーダル -->
-    <div v-if="editingTopic" class="modal modal-open">
+    <div
+      v-if="editingTopic"
+      class="modal modal-open"
+    >
       <div class="modal-box bg-white shadow-2xl border-2 border-yellow-200 rounded-2xl">
         <h3 class="font-bold text-xl mb-6 text-gray-800 flex items-center gap-2">
           <span class="text-2xl">✏️</span>
@@ -82,7 +133,7 @@
             type="text"
             class="input input-bordered w-full px-[5px] focus:ring-2 focus:ring-yellow-400 transition-all duration-300"
             required
-          />
+          >
         </div>
         <div class="form-control mb-6">
           <label class="label">
@@ -91,12 +142,24 @@
           <textarea
             v-model="editDescription"
             class="textarea textarea-bordered w-full px-[5px] focus:ring-2 focus:ring-yellow-400 transition-all duration-300"
-          ></textarea>
+          />
         </div>
         <div class="modal-action">
-          <button @click="closeEditModal" class="btn px-6 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all duration-300 shadow-md">キャンセル</button>
-          <button @click="handleUpdate" class="btn-gradient px-6 py-2 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300" :disabled="updating">
-            <span v-if="updating" class="loading loading-spinner loading-sm mr-2"></span>
+          <button
+            class="btn px-6 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all duration-300 shadow-md"
+            @click="closeEditModal"
+          >
+            キャンセル
+          </button>
+          <button
+            class="btn-gradient px-6 py-2 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+            :disabled="updating"
+            @click="handleUpdate"
+          >
+            <span
+              v-if="updating"
+              class="loading loading-spinner loading-sm mr-2"
+            />
             {{ updating ? '更新中...' : '更新' }}
           </button>
         </div>

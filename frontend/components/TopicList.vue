@@ -2,8 +2,13 @@
   <div class="space-y-4">
     <div class="card bg-base-100 shadow-xl">
       <div class="card-body">
-        <h2 class="card-title">トピック</h2>
-        <form @submit.prevent="handleAddTopic" class="space-y-4">
+        <h2 class="card-title">
+          トピック
+        </h2>
+        <form
+          class="space-y-4"
+          @submit.prevent="handleAddTopic"
+        >
           <div class="form-control">
             <input
               v-model="newTopicTitle"
@@ -11,20 +16,27 @@
               placeholder="トピックタイトル"
               class="input input-bordered px-[5px]"
               required
-            />
+            >
           </div>
           <div class="form-control">
             <textarea
               v-model="newTopicDescription"
               class="textarea textarea-bordered px-[5px]"
               placeholder="説明（オプション）"
-            ></textarea>
+            />
           </div>
-          <button type="submit" class="btn btn-primary" :disabled="adding">
+          <button
+            type="submit"
+            class="btn btn-primary"
+            :disabled="adding"
+          >
             {{ adding ? '追加中...' : 'トピックを追加' }}
           </button>
         </form>
-        <div v-if="addError" class="alert alert-error mt-4">
+        <div
+          v-if="addError"
+          class="alert alert-error mt-4"
+        >
           <span>{{ addError }}</span>
         </div>
       </div>

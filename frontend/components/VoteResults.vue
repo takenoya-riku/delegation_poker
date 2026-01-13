@@ -1,11 +1,22 @@
 <template>
   <div class="space-y-4">
-    <h4 v-if="title" class="font-semibold text-lg text-gray-700 mb-4">{{ title }}</h4>
-    <div v-if="filteredVotes.length === 0" class="text-center py-8 text-gray-500 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300">
+    <h4
+      v-if="title"
+      class="font-semibold text-lg text-gray-700 mb-4"
+    >
+      {{ title }}
+    </h4>
+    <div
+      v-if="filteredVotes.length === 0"
+      class="text-center py-8 text-gray-500 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300"
+    >
       <span class="text-4xl mb-2 block">📭</span>
       まだ投票がありません
     </div>
-    <div v-else class="space-y-3">
+    <div
+      v-else
+      class="space-y-3"
+    >
       <div
         v-for="vote in filteredVotes"
         :key="vote.id"
@@ -22,18 +33,33 @@
         </span>
       </div>
     </div>
-    <div v-if="filteredVotes.length > 0" class="stats shadow-lg bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200 rounded-xl mt-6">
+    <div
+      v-if="filteredVotes.length > 0"
+      class="stats shadow-lg bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200 rounded-xl mt-6"
+    >
       <div class="stat">
-        <div class="stat-title text-gray-600 font-semibold">平均</div>
-        <div class="stat-value text-purple-600">{{ averageLevel.toFixed(1) }}</div>
+        <div class="stat-title text-gray-600 font-semibold">
+          平均
+        </div>
+        <div class="stat-value text-purple-600">
+          {{ averageLevel.toFixed(1) }}
+        </div>
       </div>
       <div class="stat">
-        <div class="stat-title text-gray-600 font-semibold">最大</div>
-        <div class="stat-value text-pink-600">{{ maxLevel }}</div>
+        <div class="stat-title text-gray-600 font-semibold">
+          最大
+        </div>
+        <div class="stat-value text-pink-600">
+          {{ maxLevel }}
+        </div>
       </div>
       <div class="stat">
-        <div class="stat-title text-gray-600 font-semibold">最小</div>
-        <div class="stat-value text-blue-600">{{ minLevel }}</div>
+        <div class="stat-title text-gray-600 font-semibold">
+          最小
+        </div>
+        <div class="stat-value text-blue-600">
+          {{ minLevel }}
+        </div>
       </div>
     </div>
   </div>

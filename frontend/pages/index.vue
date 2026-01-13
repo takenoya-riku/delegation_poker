@@ -1,14 +1,19 @@
 <template>
   <div class="min-h-screen relative overflow-hidden">
     <!-- グラデーション背景 -->
-    <div class="absolute inset-0 bg-gradient-to-br from-purple-400 via-pink-400 to-blue-400 opacity-20"></div>
-    <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-30"></div>
+    <div class="absolute inset-0 bg-gradient-to-br from-purple-400 via-pink-400 to-blue-400 opacity-20" />
+    <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-30" />
     
     <div class="container mx-auto px-4 py-8 relative z-10">
       <!-- ヘッダー -->
       <div class="flex justify-between items-center mb-12 animate-fade-in">
-        <h1 class="text-5xl font-bold text-gradient">Delegation Poker</h1>
-        <NuxtLink to="/rooms" class="btn-gradient px-6 py-2 rounded-full text-sm font-semibold shadow-lg">
+        <h1 class="text-5xl font-bold text-gradient">
+          Delegation Poker
+        </h1>
+        <NuxtLink
+          to="/rooms"
+          class="btn-gradient px-6 py-2 rounded-full text-sm font-semibold shadow-lg"
+        >
           保存したルーム
         </NuxtLink>
       </div>
@@ -25,15 +30,24 @@
 
       <!-- メインコンテンツ -->
       <div class="max-w-2xl mx-auto space-y-8">
-        <div class="animate-fade-in" style="animation-delay: 0.1s">
+        <div
+          class="animate-fade-in"
+          style="animation-delay: 0.1s"
+        >
           <RoomCreateForm />
         </div>
         
-        <div class="divider-modern animate-fade-in" style="animation-delay: 0.2s">
+        <div
+          class="divider-modern animate-fade-in"
+          style="animation-delay: 0.2s"
+        >
           <span class="bg-white px-4 text-gray-500 font-medium">または</span>
         </div>
         
-        <div class="animate-fade-in" style="animation-delay: 0.3s">
+        <div
+          class="animate-fade-in"
+          style="animation-delay: 0.3s"
+        >
           <RoomJoinForm />
         </div>
       </div>

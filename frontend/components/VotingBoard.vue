@@ -4,12 +4,25 @@
       <div class="card-modern border-2 border-blue-200 bg-white/95 shadow-xl backdrop-blur">
         <div class="card-body p-6">
           <div class="grid grid-cols-7 gap-2 text-center text-xs text-gray-600">
-            <div v-for="level in delegationLevels" :key="level.level" class="space-y-1">
+            <div
+              v-for="level in delegationLevels"
+              :key="level.level"
+              class="space-y-1"
+            >
               <div class="flex items-center justify-center">
-                <img :src="level.image" :alt="`権限レベル${level.level}`" class="h-56 w-auto" loading="lazy" />
+                <img
+                  :src="level.image"
+                  :alt="`権限レベル${level.level}`"
+                  class="h-56 w-auto"
+                  loading="lazy"
+                >
               </div>
-              <div class="text-lg font-semibold text-gray-700">Lv{{ level.level }}</div>
-              <div class="text-sm">{{ level.label }}</div>
+              <div class="text-lg font-semibold text-gray-700">
+                Lv{{ level.level }}
+              </div>
+              <div class="text-sm">
+                {{ level.label }}
+              </div>
             </div>
           </div>
         </div>
@@ -25,7 +38,10 @@
             :disabled="revertingToOrganizing"
             @click="handleRevertToOrganizing"
           >
-            <span v-if="revertingToOrganizing" class="loading loading-spinner loading-sm mr-2"></span>
+            <span
+              v-if="revertingToOrganizing"
+              class="loading loading-spinner loading-sm mr-2"
+            />
             {{ revertingToOrganizing ? '整理フェーズに戻しています...' : '↩️ 整理フェーズに戻す' }}
           </button>
         </div>
@@ -38,7 +54,10 @@
           </button>
         </div>
       </div>
-      <div v-if="revertError" class="alert alert-error shadow-md">
+      <div
+        v-if="revertError"
+        class="alert alert-error shadow-md"
+      >
         <span>{{ revertError }}</span>
       </div>
       <div
@@ -49,8 +68,15 @@
         <div class="card-body p-6 space-y-5">
           <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div class="flex-1 space-y-2">
-              <h3 class="text-xl font-bold text-gray-800">{{ topic.title }}</h3>
-              <p v-if="topic.description" class="text-sm text-gray-600">{{ topic.description }}</p>
+              <h3 class="text-xl font-bold text-gray-800">
+                {{ topic.title }}
+              </h3>
+              <p
+                v-if="topic.description"
+                class="text-sm text-gray-600"
+              >
+                {{ topic.description }}
+              </p>
               <div class="flex flex-wrap gap-2 pt-2">
                 <button
                   class="px-4 py-2 rounded-full text-sm font-semibold shadow-md"
@@ -68,11 +94,19 @@
                 >
                   {{ desiredVoteButtonLabel(topic) }}
                 </button>
-                <span class="badge badge-lg px-3 py-2 text-xs font-semibold" :class="statusBadgeClass(topic)">
+                <span
+                  class="badge badge-lg px-3 py-2 text-xs font-semibold"
+                  :class="statusBadgeClass(topic)"
+                >
                   {{ statusLabel(topic) }}
                 </span>
               </div>
-              <p v-if="voteHint(topic)" class="text-xs text-gray-500">{{ voteHint(topic) }}</p>
+              <p
+                v-if="voteHint(topic)"
+                class="text-xs text-gray-500"
+              >
+                {{ voteHint(topic) }}
+              </p>
             </div>
 
             <div class="flex flex-col gap-2 lg:min-w-[220px]">
@@ -82,7 +116,10 @@
                 :disabled="isActionLoading(topic.id, 'reveal_current')"
                 @click="handleRevealCurrent(topic)"
               >
-                <span v-if="isActionLoading(topic.id, 'reveal_current')" class="loading loading-spinner loading-sm mr-2"></span>
+                <span
+                  v-if="isActionLoading(topic.id, 'reveal_current')"
+                  class="loading loading-spinner loading-sm mr-2"
+                />
                 現状結果を公開
               </button>
               <button
@@ -91,7 +128,10 @@
                 :disabled="isActionLoading(topic.id, 'start_desired')"
                 @click="handleStartDesired(topic)"
               >
-                <span v-if="isActionLoading(topic.id, 'start_desired')" class="loading loading-spinner loading-sm mr-2"></span>
+                <span
+                  v-if="isActionLoading(topic.id, 'start_desired')"
+                  class="loading loading-spinner loading-sm mr-2"
+                />
                 ありたい姿投票を開始
               </button>
               <button
@@ -100,7 +140,10 @@
                 :disabled="isActionLoading(topic.id, 'reveal_desired')"
                 @click="handleRevealDesired(topic)"
               >
-                <span v-if="isActionLoading(topic.id, 'reveal_desired')" class="loading loading-spinner loading-sm mr-2"></span>
+                <span
+                  v-if="isActionLoading(topic.id, 'reveal_desired')"
+                  class="loading loading-spinner loading-sm mr-2"
+                />
                 理想結果を公開
               </button>
             </div>
@@ -112,7 +155,10 @@
                 <span>現状</span>
                 <span class="text-xs text-gray-500">({{ currentVotes(topic).length }}/{{ totalParticipants }})</span>
               </div>
-              <p v-if="!hasAllVotes(topic, 'current_state')" class="text-xs text-blue-400 mb-2">
+              <p
+                v-if="!hasAllVotes(topic, 'current_state')"
+                class="text-xs text-blue-400 mb-2"
+              >
                 全員の投票を待っています
               </p>
               <div class="grid grid-cols-7 overflow-hidden rounded-xl border-2 border-blue-100 bg-white shadow-inner">
@@ -134,7 +180,10 @@
                       {{ pin.participantInitial }}
                     </span>
                   </template>
-                  <span v-else class="text-xs text-blue-300">-</span>
+                  <span
+                    v-else
+                    class="text-xs text-blue-300"
+                  >-</span>
                 </div>
               </div>
             </div>
@@ -144,7 +193,10 @@
                 <span>理想</span>
                 <span class="text-xs text-gray-500">({{ desiredVotes(topic).length }}/{{ totalParticipants }})</span>
               </div>
-              <p v-if="!hasAllVotes(topic, 'desired_state')" class="text-xs text-pink-400 mb-2">
+              <p
+                v-if="!hasAllVotes(topic, 'desired_state')"
+                class="text-xs text-pink-400 mb-2"
+              >
                 全員の投票を待っています
               </p>
               <div class="grid grid-cols-7 overflow-hidden rounded-xl border-2 border-pink-100 bg-white shadow-inner">
@@ -166,7 +218,10 @@
                       {{ pin.participantInitial }}
                     </span>
                   </template>
-                  <span v-else class="text-xs text-pink-300">-</span>
+                  <span
+                    v-else
+                    class="text-xs text-pink-300"
+                  >-</span>
                 </div>
               </div>
             </div>
@@ -175,7 +230,10 @@
       </div>
     </div>
 
-    <div v-if="isVoteModalOpen" class="modal modal-open">
+    <div
+      v-if="isVoteModalOpen"
+      class="modal modal-open"
+    >
       <div class="modal-box bg-white shadow-2xl border-2 border-blue-200 rounded-2xl">
         <h3 class="font-bold text-xl mb-4 text-gray-800">
           {{ modalTitle }}
@@ -188,11 +246,17 @@
           :votes="selectedTopic.votes"
           @voted="handleVoted"
         />
-        <div v-else class="alert alert-info shadow-md">
+        <div
+          v-else
+          class="alert alert-info shadow-md"
+        >
           <span>投票するにはルームに参加してください</span>
         </div>
         <div class="modal-action">
-          <button @click="closeVoteModal" class="btn px-6 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all duration-300 shadow-md">
+          <button
+            class="btn px-6 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all duration-300 shadow-md"
+            @click="closeVoteModal"
+          >
             閉じる
           </button>
         </div>

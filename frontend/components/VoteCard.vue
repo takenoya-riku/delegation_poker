@@ -1,7 +1,9 @@
 <template>
   <div class="space-y-4">
     <div>
-      <p class="text-base font-semibold mb-4 text-gray-700">{{ voteTypeLabel }}の権限レベルを選択してください</p>
+      <p class="text-base font-semibold mb-4 text-gray-700">
+        {{ voteTypeLabel }}の権限レベルを選択してください
+      </p>
       <div class="grid grid-cols-7 gap-3">
         <button
           v-for="level in [1, 2, 3, 4, 5, 6, 7]"
@@ -11,18 +13,24 @@
             'bg-gradient-to-br from-purple-500 to-pink-500 text-white border-0 animate-pulse-glow': currentVote === level,
             'bg-white border-2 border-gray-300 text-gray-700 hover:border-purple-400 hover:bg-purple-50': currentVote !== level
           }"
-          @click="handleVote(level)"
           :disabled="voting"
+          @click="handleVote(level)"
         >
           {{ level }}
         </button>
       </div>
     </div>
-    <div v-if="voting" class="flex items-center gap-2 text-sm text-gray-600 animate-fade-in">
-      <span class="loading loading-spinner loading-sm"></span>
+    <div
+      v-if="voting"
+      class="flex items-center gap-2 text-sm text-gray-600 animate-fade-in"
+    >
+      <span class="loading loading-spinner loading-sm" />
       投票中...
     </div>
-    <div v-if="voteError" class="alert alert-error shadow-md animate-fade-in">
+    <div
+      v-if="voteError"
+      class="alert alert-error shadow-md animate-fade-in"
+    >
       <span>{{ voteError }}</span>
     </div>
   </div>

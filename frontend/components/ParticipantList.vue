@@ -5,7 +5,9 @@
         <div class="w-10 h-10 rounded-full bg-gradient-success flex items-center justify-center text-white font-bold shadow-md">
           👥
         </div>
-        <h2 class="card-title text-xl text-gray-800">参加者</h2>
+        <h2 class="card-title text-xl text-gray-800">
+          参加者
+        </h2>
         <span class="badge badge-primary badge-lg px-3 py-1">{{ participants.length }}人</span>
       </div>
       <div class="flex flex-wrap gap-3">
@@ -19,7 +21,10 @@
         >
           <span class="mr-1">{{ participant.id === currentParticipantId ? '⭐' : '👤' }}</span>
           {{ participant.name }}
-          <span v-if="participant.id === currentParticipantId" class="ml-2 text-xs bg-white/20 px-2 py-0.5 rounded-full">
+          <span
+            v-if="participant.id === currentParticipantId"
+            class="ml-2 text-xs bg-white/20 px-2 py-0.5 rounded-full"
+          >
             あなた
           </span>
         </div>

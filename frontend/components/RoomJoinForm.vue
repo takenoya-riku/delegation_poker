@@ -5,9 +5,14 @@
         <div class="w-12 h-12 rounded-full bg-gradient-success flex items-center justify-center text-white text-xl font-bold shadow-lg">
           🚪
         </div>
-        <h2 class="card-title text-2xl text-gray-800">ルームに参加</h2>
+        <h2 class="card-title text-2xl text-gray-800">
+          ルームに参加
+        </h2>
       </div>
-      <form @submit.prevent="handleJoin" class="space-y-6">
+      <form
+        class="space-y-6"
+        @submit.prevent="handleJoin"
+      >
         <div class="form-control">
           <label class="label">
             <span class="label-text font-semibold text-gray-700">ルームコード</span>
@@ -19,7 +24,7 @@
             class="input input-bordered w-full px-[5px] focus:input-primary focus:ring-2 focus:ring-blue-500 transition-all duration-300 text-center text-2xl font-bold tracking-widest uppercase"
             maxlength="6"
             required
-          />
+          >
         </div>
         <div class="form-control">
           <label class="label">
@@ -31,7 +36,7 @@
             placeholder="例: 山田太郎"
             class="input input-bordered w-full px-[5px] focus:input-primary focus:ring-2 focus:ring-blue-500 transition-all duration-300"
             required
-          />
+          >
         </div>
         <div class="form-control">
           <button 
@@ -39,11 +44,17 @@
             class="btn-gradient-secondary w-full text-lg py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300" 
             :disabled="joining"
           >
-            <span v-if="joining" class="loading loading-spinner loading-sm mr-2"></span>
+            <span
+              v-if="joining"
+              class="loading loading-spinner loading-sm mr-2"
+            />
             {{ joining ? '参加中...' : '🎯 ルームに参加' }}
           </button>
         </div>
-        <div v-if="error" class="alert alert-error mt-4 shadow-md animate-fade-in">
+        <div
+          v-if="error"
+          class="alert alert-error mt-4 shadow-md animate-fade-in"
+        >
           <span>{{ error }}</span>
         </div>
       </form>

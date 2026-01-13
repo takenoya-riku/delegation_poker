@@ -21,3 +21,13 @@ npm run dev
 ```bash
 npm run build
 ```
+
+## Lint
+
+```bash
+npm run lint
+```
+
+```bash
+npm run lint:fix
+```

@@ -1,26 +1,39 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50">
     <div class="container mx-auto px-4 py-8">
-      <div v-if="fetching && !hasLoaded" class="flex items-center justify-center min-h-screen">
+      <div
+        v-if="fetching && !hasLoaded"
+        class="flex items-center justify-center min-h-screen"
+      >
         <div class="text-center">
-          <span class="loading loading-spinner loading-lg text-purple-500"></span>
-          <p class="mt-4 text-gray-600">読み込み中...</p>
+          <span class="loading loading-spinner loading-lg text-purple-500" />
+          <p class="mt-4 text-gray-600">
+            読み込み中...
+          </p>
         </div>
       </div>
-      <div v-else-if="error" class="card-modern border-2 border-red-200 animate-fade-in">
+      <div
+        v-else-if="error"
+        class="card-modern border-2 border-red-200 animate-fade-in"
+      >
         <div class="card-body">
           <div class="alert alert-error shadow-lg">
             <span>エラー: {{ error.message }}</span>
           </div>
         </div>
       </div>
-      <div v-else-if="room" class="space-y-8 animate-fade-in">
+      <div
+        v-else-if="room"
+        class="space-y-8 animate-fade-in"
+      >
         <!-- ルームヘッダー -->
         <div class="card-modern border-2 border-purple-200 bg-gradient-to-r from-white to-purple-50 shadow-xl">
           <div class="card-body p-6">
             <div class="flex items-center justify-between">
               <div>
-                <h1 class="text-4xl font-bold text-gradient mb-2">{{ room.name }}</h1>
+                <h1 class="text-4xl font-bold text-gradient mb-2">
+                  {{ room.name }}
+                </h1>
                 <div class="flex items-center gap-3">
                   <span class="badge badge-lg badge-primary px-4 py-2 text-sm font-semibold">
                     🔑 ルームコード: {{ room.code }}
@@ -43,41 +56,71 @@
                   :disabled="deletingRoom"
                   @click="handleDeleteRoom"
                 >
-                  <span v-if="deletingRoom" class="loading loading-spinner loading-xs mr-1"></span>
+                  <span
+                    v-if="deletingRoom"
+                    class="loading loading-spinner loading-xs mr-1"
+                  />
                   ルームを削除
                 </button>
               </div>
             </div>
-            <div v-if="deleteError" class="alert alert-error mt-4 shadow-md animate-fade-in">
+            <div
+              v-if="deleteError"
+              class="alert alert-error mt-4 shadow-md animate-fade-in"
+            >
               <span>{{ deleteError }}</span>
             </div>
             <div class="mt-6">
               <div class="flex items-center gap-3 mb-3">
                 <span class="text-sm text-gray-600">現在のフロー:</span>
-                <span class="badge badge-lg px-4 py-2 text-sm font-semibold" :class="currentPhaseBadgeClass">
+                <span
+                  class="badge badge-lg px-4 py-2 text-sm font-semibold"
+                  :class="currentPhaseBadgeClass"
+                >
                   {{ currentPhaseLabel }}
                 </span>
               </div>
               <div class="grid gap-3 sm:grid-cols-3">
-                <div class="flex items-center gap-3 rounded-xl border-2 px-4 py-3" :class="phaseStepClass('draft')">
+                <div
+                  class="flex items-center gap-3 rounded-xl border-2 px-4 py-3"
+                  :class="phaseStepClass('draft')"
+                >
                   <span class="text-xl">{{ phaseStepIcon('draft') }}</span>
                   <div>
-                    <p class="text-sm font-semibold">対象出し</p>
-                    <p class="text-xs text-gray-600">話し合いたい内容を追加</p>
+                    <p class="text-sm font-semibold">
+                      対象出し
+                    </p>
+                    <p class="text-xs text-gray-600">
+                      話し合いたい内容を追加
+                    </p>
                   </div>
                 </div>
-                <div class="flex items-center gap-3 rounded-xl border-2 px-4 py-3" :class="phaseStepClass('organizing')">
+                <div
+                  class="flex items-center gap-3 rounded-xl border-2 px-4 py-3"
+                  :class="phaseStepClass('organizing')"
+                >
                   <span class="text-xl">{{ phaseStepIcon('organizing') }}</span>
                   <div>
-                    <p class="text-sm font-semibold">整理</p>
-                    <p class="text-xs text-gray-600">重複をまとめる</p>
+                    <p class="text-sm font-semibold">
+                      整理
+                    </p>
+                    <p class="text-xs text-gray-600">
+                      重複をまとめる
+                    </p>
                   </div>
                 </div>
-                <div class="flex items-center gap-3 rounded-xl border-2 px-4 py-3" :class="phaseStepClass('voting')">
+                <div
+                  class="flex items-center gap-3 rounded-xl border-2 px-4 py-3"
+                  :class="phaseStepClass('voting')"
+                >
                   <span class="text-xl">{{ phaseStepIcon('voting') }}</span>
                   <div>
-                    <p class="text-sm font-semibold">投票</p>
-                    <p class="text-xs text-gray-600">現状/理想を評価</p>
+                    <p class="text-sm font-semibold">
+                      投票
+                    </p>
+                    <p class="text-xs text-gray-600">
+                      現状/理想を評価
+                    </p>
                   </div>
                 </div>
               </div>
@@ -86,11 +129,18 @@
         </div>
 
         <!-- 参加者リスト -->
-        <ParticipantList :participants="room.participants" :current-participant-id="currentParticipantId" />
+        <ParticipantList
+          :participants="room.participants"
+          :current-participant-id="currentParticipantId"
+        />
 
         <!-- フェーズに応じたコンポーネントを表示 -->
         <!-- トピックが1つもない場合、またはdraftトピックがある場合に対象出しフォームを表示 -->
-        <div v-if="hasNoTopics || hasDraftTopics" class="animate-fade-in" style="animation-delay: 0.1s">
+        <div
+          v-if="hasNoTopics || hasDraftTopics"
+          class="animate-fade-in"
+          style="animation-delay: 0.1s"
+        >
           <TopicDraftList
             :topics="room.topics"
             :room-id="room.id"
@@ -101,7 +151,11 @@
           />
         </div>
 
-        <div v-else-if="hasOrganizingTopics" class="animate-fade-in" style="animation-delay: 0.1s">
+        <div
+          v-else-if="hasOrganizingTopics"
+          class="animate-fade-in"
+          style="animation-delay: 0.1s"
+        >
           <TopicOrganizeView
             :topics="room.topics"
             :participants="room.participants"
@@ -111,7 +165,11 @@
           />
         </div>
 
-        <div v-else class="space-y-6 animate-fade-in" style="animation-delay: 0.1s">
+        <div
+          v-else
+          class="space-y-6 animate-fade-in"
+          style="animation-delay: 0.1s"
+        >
           <VotingBoard
             :topics="votingTopics"
             :participants="room.participants"
