@@ -88,6 +88,7 @@
           <TopicDraftList
             :topics="room.topics"
             :room-id="room.id"
+            :participants="room.participants"
             :is-room-master="isRoomMaster"
             :current-participant-id="currentParticipantId"
             @refresh="handleRefresh"
@@ -97,6 +98,7 @@
         <div v-else-if="hasOrganizingTopics" class="animate-fade-in" style="animation-delay: 0.1s">
           <TopicOrganizeView
             :topics="room.topics"
+            :participants="room.participants"
             :is-room-master="isRoomMaster"
             :current-participant-id="currentParticipantId"
             @refresh="handleRefresh"
@@ -106,6 +108,7 @@
         <div v-else class="space-y-6 animate-fade-in" style="animation-delay: 0.1s">
           <VotingBoard
             :topics="votingTopics"
+            :participants="room.participants"
             :participant-id="currentParticipantId"
             :total-participants="room.participants.length"
             :is-room-master="isRoomMaster"

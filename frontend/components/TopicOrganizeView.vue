@@ -27,6 +27,7 @@
         <div class="card-body p-5">
           <h3 class="card-title text-xl text-gray-800 mb-2">{{ topic.title }}</h3>
           <p v-if="topic.description" class="text-sm text-gray-600 mb-4">{{ topic.description }}</p>
+          <p class="text-xs text-gray-500 mb-4">作成者: {{ creatorName(topic) }}</p>
           <div class="card-actions justify-end">
             <button @click="openEditModal(topic)" class="btn btn-sm px-4 py-2 rounded-lg bg-white border-2 border-gray-300 text-gray-700 hover:border-gray-400 hover:bg-gray-50 transition-all duration-300 shadow-md hover:shadow-lg">編集</button>
             <button @click="handleDelete(topic.id)" class="btn btn-sm px-4 py-2 rounded-lg bg-gradient-to-r from-red-500 to-pink-500 text-white border-0 hover:from-red-600 hover:to-pink-600 transition-all duration-300 shadow-md hover:shadow-lg" :disabled="deleting">
@@ -117,6 +118,10 @@ const props = defineProps<{
     status: string
     participantId?: string | null
   }>
+  participants: Array<{
+    id: string
+    name: string
+  }>
   isRoomMaster: boolean
   currentParticipantId: string | null
 }>()
@@ -125,7 +130,39 @@ const emit = defineEmits<{
   refresh: []
 }>()
 
-const organizingTopics = computed(() => props.topics.filter(t => t.status === 'ORGANIZING' || t.status === 'organizing'))
+const organizingTopics = computed(() => {
+  const topics = props.topics.filter(t => t.status === 'ORGANIZING' || t.status === 'organizing')
+  const topicsByCreator = new Map<string | null, typeof topics>()
+
+  topics.forEach(topic => {
+    const key = topic.participantId ?? null
+    const list = topicsByCreator.get(key) || []
+    list.push(topic)
+    topicsByCreator.set(key, list)
+  })
+
+  const creatorOrder = props.participants
+    .map(participant => participant.id)
+    .filter(participantId => topicsByCreator.has(participantId))
+
+  const orderedTopics: typeof topics = []
+  creatorOrder.forEach(creatorId => {
+    const group = topicsByCreator.get(creatorId) || []
+    group.sort((a, b) => a.title.localeCompare(b.title, 'ja'))
+    orderedTopics.push(...group)
+  })
+
+  const unknownGroup = topicsByCreator.get(null) || []
+  unknownGroup.sort((a, b) => a.title.localeCompare(b.title, 'ja'))
+  orderedTopics.push(...unknownGroup)
+
+  return orderedTopics
+})
+
+const creatorName = (topic: typeof props.topics[0]) => {
+  if (!topic.participantId) return '-'
+  return props.participants.find(p => p.id === topic.participantId)?.name || '-'
+}
 
 const deleting = ref(false)
 const starting = ref(false)

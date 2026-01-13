@@ -17,8 +17,21 @@
     </div>
 
     <div class="space-y-5">
+      <div v-if="isRoomMaster && orderedTopics.length > 0" class="flex justify-end">
+        <button
+          class="btn px-6 py-2 rounded-xl font-semibold shadow-lg border-2 border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-300"
+          :disabled="revertingToOrganizing"
+          @click="handleRevertToOrganizing"
+        >
+          <span v-if="revertingToOrganizing" class="loading loading-spinner loading-sm mr-2"></span>
+          {{ revertingToOrganizing ? '整理フェーズに戻しています...' : '↩️ 整理フェーズに戻す' }}
+        </button>
+      </div>
+      <div v-if="revertError" class="alert alert-error shadow-md">
+        <span>{{ revertError }}</span>
+      </div>
       <div
-        v-for="topic in sortedTopics"
+        v-for="topic in orderedTopics"
         :key="topic.id"
         class="card-modern border-2 border-blue-100 bg-white/80 shadow-lg"
       >
@@ -179,6 +192,7 @@
 
 <script setup lang="ts">
 import { useMutation } from '@urql/vue'
+import gql from 'graphql-tag'
 import { RevealCurrentStateDocument, StartDesiredStateVotingDocument, RevealDesiredStateDocument } from '~/graphql/generated/types'
 
 type VoteTypeKey = 'current_state' | 'desired_state'
@@ -198,7 +212,12 @@ const props = defineProps<{
     title: string
     description: string | null
     status: string
+    participantId?: string | null
     votes: TopicVote[]
+  }>
+  participants: Array<{
+    id: string
+    name: string
   }>
   participantId: string | null
   totalParticipants: number
@@ -454,6 +473,20 @@ const isActionLoading = (topicId: string, action: ActionType) => {
 const revealCurrentMutation = useMutation(RevealCurrentStateDocument)
 const startDesiredMutation = useMutation(StartDesiredStateVotingDocument)
 const revealDesiredMutation = useMutation(RevealDesiredStateDocument)
+const revertToOrganizingMutation = useMutation(gql`
+  mutation RevertToOrganizing($topicId: ID!) {
+    revertToOrganizing(topicId: $topicId) {
+      topic {
+        id
+        status
+      }
+      errors
+    }
+  }
+`)
+
+const revertingToOrganizing = ref(false)
+const revertError = ref('')
 
 const handleRevealCurrent = async (topic: { id: string }) => {
   actionLoading.value = { topicId: topic.id, action: 'reveal_current' }
@@ -482,7 +515,62 @@ const handleRevealDesired = async (topic: { id: string }) => {
   actionLoading.value = null
 }
 
-const sortedTopics = computed(() => {
-  return [...props.topics].sort((a, b) => b.id.localeCompare(a.id))
+const handleRevertToOrganizing = async () => {
+  if (orderedTopics.value.length === 0) return
+  if (!confirm('投票フェーズを取り消して整理フェーズに戻しますか？')) return
+
+  revertingToOrganizing.value = true
+  revertError.value = ''
+
+  const results = await Promise.all(
+    orderedTopics.value.map(topic => revertToOrganizingMutation.executeMutation({ topicId: topic.id }))
+  )
+
+  const errors = results
+    .map((result, index) => {
+      if (result.error) {
+        return `${orderedTopics.value[index].title}: ${result.error.message}`
+      }
+      if (result.data?.revertToOrganizing?.errors?.length > 0) {
+        return `${orderedTopics.value[index].title}: ${result.data.revertToOrganizing.errors[0]}`
+      }
+      return null
+    })
+    .filter(Boolean)
+
+  if (errors.length > 0) {
+    revertError.value = errors.join(', ')
+  } else {
+    emit('refresh')
+  }
+
+  revertingToOrganizing.value = false
+}
+
+const orderedTopics = computed(() => {
+  const topicsByCreator = new Map<string | null, typeof props.topics>()
+  props.topics.forEach(topic => {
+    const key = topic.participantId ?? null
+    const list = topicsByCreator.get(key) || []
+    list.push(topic)
+    topicsByCreator.set(key, list)
+  })
+
+  const creatorOrder = props.participants
+    .map(participant => participant.id)
+    .filter(participantId => topicsByCreator.has(participantId))
+
+  const ordered: typeof props.topics = []
+  creatorOrder.forEach(creatorId => {
+    const group = topicsByCreator.get(creatorId) || []
+    group.sort((a, b) => a.title.localeCompare(b.title, 'ja'))
+    ordered.push(...group)
+  })
+
+  const unknownGroup = topicsByCreator.get(null) || []
+  unknownGroup.sort((a, b) => a.title.localeCompare(b.title, 'ja'))
+  ordered.push(...unknownGroup)
+
+  return ordered
 })
 </script>

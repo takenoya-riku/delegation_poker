@@ -121,6 +121,18 @@ mutation RevertToDraft($topicId: ID!) {
 }
 ```
 
+```graphql
+mutation RevertToOrganizing($topicId: ID!) {
+  revertToOrganizing(topicId: $topicId) {
+    topic {
+      id
+      status
+    }
+    errors
+  }
+}
+```
+
 ## 開発ガイド
 
 ### 新しいMutationの追加例

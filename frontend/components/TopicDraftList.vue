@@ -51,6 +51,7 @@
         <div class="card-body p-5">
           <h3 class="card-title text-xl text-gray-800 mb-2">{{ topic.title }}</h3>
           <p v-if="topic.description" class="text-sm text-gray-600">{{ topic.description }}</p>
+          <p class="text-xs text-gray-500 mt-3">作成者: {{ creatorName(topic) }}</p>
           <div v-if="isOwnTopic(topic)" class="card-actions justify-end mt-4">
             <button
               class="btn btn-sm px-4 py-2 rounded-lg bg-white border-2 border-gray-300 text-gray-700 hover:border-gray-400 hover:bg-gray-50 transition-all duration-300 shadow-md hover:shadow-lg"
@@ -143,6 +144,10 @@ const props = defineProps<{
     status: string
     participantId?: string | null
   }>
+  participants: Array<{
+    id: string
+    name: string
+  }>
   roomId: string
   isRoomMaster: boolean
   currentParticipantId: string | null
@@ -152,7 +157,43 @@ const emit = defineEmits<{
   refresh: []
 }>()
 
-const draftTopics = computed(() => props.topics.filter(t => t.status === 'DRAFT' || t.status === 'draft'))
+const draftTopics = computed(() => {
+  const topics = props.topics.filter(t => t.status === 'DRAFT' || t.status === 'draft')
+  const topicsByCreator = new Map<string | null, typeof topics>()
+  const normalizeName = (name: string) => name.trim()
+  const sortedParticipants = [...props.participants].sort((a, b) => {
+    return normalizeName(a.name).localeCompare(normalizeName(b.name), 'ja')
+  })
+
+  topics.forEach(topic => {
+    const key = topic.participantId ?? null
+    const list = topicsByCreator.get(key) || []
+    list.push(topic)
+    topicsByCreator.set(key, list)
+  })
+
+  const creatorOrder = sortedParticipants
+    .map(participant => participant.id)
+    .filter(participantId => topicsByCreator.has(participantId))
+
+  if (props.currentParticipantId && creatorOrder.includes(props.currentParticipantId)) {
+    const rest = creatorOrder.filter(id => id !== props.currentParticipantId)
+    creatorOrder.splice(0, creatorOrder.length, props.currentParticipantId, ...rest)
+  }
+
+  const orderedTopics: typeof topics = []
+  creatorOrder.forEach(creatorId => {
+    const group = topicsByCreator.get(creatorId) || []
+    group.sort((a, b) => a.title.localeCompare(b.title, 'ja'))
+    orderedTopics.push(...group)
+  })
+
+  const unknownGroup = topicsByCreator.get(null) || []
+  unknownGroup.sort((a, b) => a.title.localeCompare(b.title, 'ja'))
+  orderedTopics.push(...unknownGroup)
+
+  return orderedTopics
+})
 
 const newTopicTitle = ref('')
 const newTopicDescription = ref('')
@@ -174,6 +215,11 @@ const deleteTopicMutation = useMutation(DeleteTopicDocument)
 
 const isOwnTopic = (topic: typeof props.topics[0]) => {
   return Boolean(props.currentParticipantId && topic.participantId === props.currentParticipantId)
+}
+
+const creatorName = (topic: typeof props.topics[0]) => {
+  if (!topic.participantId) return '-'
+  return props.participants.find(p => p.id === topic.participantId)?.name || '-'
 }
 
 const openEditModal = (topic: typeof props.topics[0]) => {
