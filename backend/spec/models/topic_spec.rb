@@ -14,6 +14,7 @@ RSpec.describe Topic, type: :model do
 
   describe "アソシエーション" do
     it { is_expected.to belong_to(:room) }
+    it { is_expected.to belong_to(:participant).optional }
     it { is_expected.to have_many(:votes).dependent(:destroy) }
   end
 

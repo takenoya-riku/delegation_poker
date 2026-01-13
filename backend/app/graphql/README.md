@@ -74,6 +74,7 @@ query GetRoom($code: String!) {
       id
       title
       status
+      participantId
     }
   }
 }
@@ -88,6 +89,20 @@ mutation CreateRoom($name: String!) {
       id
       name
       code
+    }
+    errors
+  }
+}
+```
+
+```graphql
+mutation AddTopic($roomId: ID!, $participantId: ID!, $title: String!, $description: String) {
+  addTopic(roomId: $roomId, participantId: $participantId, title: $title, description: $description) {
+    topic {
+      id
+      title
+      status
+      participantId
     }
     errors
   }

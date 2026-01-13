@@ -66,6 +66,11 @@ type Mutation {
     description: String
 
     """
+    参加者ID
+    """
+    participantId: ID!
+
+    """
     ルームID
     """
     roomId: ID!
@@ -102,9 +107,14 @@ type Mutation {
   ): DeleteRoomPayload!
 
   """
-  トピックを削除する（整理フェーズ用）
+  トピックを削除する（対象出し/整理フェーズ用）
   """
   deleteTopic(
+    """
+    参加者ID
+    """
+    participantId: ID!
+
     """
     トピックID
     """
@@ -202,13 +212,18 @@ type Mutation {
   ): StartOrganizingPayload!
 
   """
-  トピックを編集する（整理フェーズ用）
+  トピックを編集する（対象出し/整理フェーズ用）
   """
   updateTopic(
     """
     説明
     """
     description: String
+
+    """
+    参加者ID
+    """
+    participantId: ID!
 
     """
     タイトル
@@ -351,6 +366,7 @@ type Topic {
   最小投票レベル
   """
   minVoteLevel: Int
+  participantId: ID
   roomId: ID!
   status: TopicStatusEnum!
   title: String!

@@ -115,8 +115,10 @@ const props = defineProps<{
     title: string
     description: string | null
     status: string
+    participantId?: string | null
   }>
   isRoomMaster: boolean
+  currentParticipantId: string | null
 }>()
 
 const emit = defineEmits<{
@@ -162,10 +164,14 @@ const revertToDraftMutation = useMutation(gql`
 `)
 
 const handleDelete = async (topicId: string) => {
+  if (!props.currentParticipantId) return
   if (!confirm('このトピックを削除しますか？')) return
 
   deleting.value = true
-  const result = await deleteTopicMutation.executeMutation({ topicId })
+  const result = await deleteTopicMutation.executeMutation({
+    topicId,
+    participantId: props.currentParticipantId,
+  })
   if (result.data?.deleteTopic?.success) {
     emit('refresh')
   }
@@ -174,10 +180,12 @@ const handleDelete = async (topicId: string) => {
 
 const handleUpdate = async () => {
   if (!editingTopic.value) return
+  if (!props.currentParticipantId) return
 
   updating.value = true
   const result = await updateTopicMutation.executeMutation({
     topicId: editingTopic.value.id,
+    participantId: props.currentParticipantId,
     title: editTitle.value,
     description: editDescription.value || null
   })

@@ -1,5 +1,6 @@
 class Topic < ApplicationRecord
   belongs_to :room
+  belongs_to :participant, optional: true
   has_many :votes, dependent: :destroy
 
   validates :title, presence: true

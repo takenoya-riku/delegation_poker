@@ -68,12 +68,14 @@ const addTopicMutation = useMutation(AddTopicDocument)
 
 const handleAddTopic = async () => {
   if (!newTopicTitle.value.trim()) return
+  if (!props.participantId) return
 
   adding.value = true
   addError.value = ''
 
   const result = await addTopicMutation.executeMutation({
     roomId: props.roomId,
+    participantId: props.participantId,
     title: newTopicTitle.value.trim(),
     description: newTopicDescription.value.trim() || null
   })

@@ -51,6 +51,22 @@
         <div class="card-body p-5">
           <h3 class="card-title text-xl text-gray-800 mb-2">{{ topic.title }}</h3>
           <p v-if="topic.description" class="text-sm text-gray-600">{{ topic.description }}</p>
+          <div v-if="isOwnTopic(topic)" class="card-actions justify-end mt-4">
+            <button
+              class="btn btn-sm px-4 py-2 rounded-lg bg-white border-2 border-gray-300 text-gray-700 hover:border-gray-400 hover:bg-gray-50 transition-all duration-300 shadow-md hover:shadow-lg"
+              @click="openEditModal(topic)"
+            >
+              編集
+            </button>
+            <button
+              class="btn btn-sm px-4 py-2 rounded-lg bg-gradient-to-r from-red-500 to-pink-500 text-white border-0 hover:from-red-600 hover:to-pink-600 transition-all duration-300 shadow-md hover:shadow-lg"
+              :disabled="deleting"
+              @click="handleDelete(topic.id)"
+            >
+              <span v-if="deleting" class="loading loading-spinner loading-xs mr-1"></span>
+              削除
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -58,6 +74,9 @@
     <div v-if="draftTopics.length > 0" class="space-y-4">
       <div v-if="organizeError" class="alert alert-error shadow-md animate-fade-in">
         <span>{{ organizeError }}</span>
+      </div>
+      <div v-if="editError" class="alert alert-error shadow-md animate-fade-in">
+        <span>{{ editError }}</span>
       </div>
       <div class="flex justify-end">
         <button
@@ -73,11 +92,48 @@
       </div>
     </div>
   </div>
+
+  <!-- 編集モーダル -->
+  <div v-if="editingTopic" class="modal modal-open">
+    <div class="modal-box bg-white shadow-2xl border-2 border-gray-200 rounded-2xl">
+      <h3 class="font-bold text-xl mb-6 text-gray-800 flex items-center gap-2">
+        <span class="text-2xl">✏️</span>
+        トピックを編集
+      </h3>
+      <div class="form-control mb-4">
+        <label class="label">
+          <span class="label-text font-semibold text-gray-700">タイトル</span>
+        </label>
+        <input
+          v-model="editTitle"
+          type="text"
+          class="input input-bordered w-full px-[5px] focus:ring-2 focus:ring-gray-400 transition-all duration-300"
+          required
+        />
+      </div>
+      <div class="form-control mb-6">
+        <label class="label">
+          <span class="label-text font-semibold text-gray-700">説明</span>
+        </label>
+        <textarea
+          v-model="editDescription"
+          class="textarea textarea-bordered w-full px-[5px] focus:ring-2 focus:ring-gray-400 transition-all duration-300"
+        ></textarea>
+      </div>
+      <div class="modal-action">
+        <button @click="closeEditModal" class="btn px-6 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all duration-300 shadow-md">キャンセル</button>
+        <button @click="handleUpdate" class="btn-gradient px-6 py-2 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300" :disabled="updating">
+          <span v-if="updating" class="loading loading-spinner loading-sm mr-2"></span>
+          {{ updating ? '更新中...' : '更新' }}
+        </button>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { useMutation } from '@urql/vue'
-import { AddTopicDocument, StartOrganizingDocument } from '~/graphql/generated/types'
+import { AddTopicDocument, DeleteTopicDocument, StartOrganizingDocument, UpdateTopicDocument } from '~/graphql/generated/types'
 
 const props = defineProps<{
   topics: Array<{
@@ -85,9 +141,11 @@ const props = defineProps<{
     title: string
     description: string | null
     status: string
+    participantId?: string | null
   }>
   roomId: string
   isRoomMaster: boolean
+  currentParticipantId: string | null
 }>()
 
 const emit = defineEmits<{
@@ -102,12 +160,40 @@ const adding = ref(false)
 const addError = ref('')
 const organizing = ref(false)
 const organizeError = ref('')
+const editingTopic = ref<typeof props.topics[0] | null>(null)
+const editTitle = ref('')
+const editDescription = ref('')
+const updating = ref(false)
+const deleting = ref(false)
+const editError = ref('')
 
 const addTopicMutation = useMutation(AddTopicDocument)
 const startOrganizingMutation = useMutation(StartOrganizingDocument)
+const updateTopicMutation = useMutation(UpdateTopicDocument)
+const deleteTopicMutation = useMutation(DeleteTopicDocument)
+
+const isOwnTopic = (topic: typeof props.topics[0]) => {
+  return Boolean(props.currentParticipantId && topic.participantId === props.currentParticipantId)
+}
+
+const openEditModal = (topic: typeof props.topics[0]) => {
+  editingTopic.value = topic
+  editTitle.value = topic.title
+  editDescription.value = topic.description || ''
+}
+
+const closeEditModal = () => {
+  editingTopic.value = null
+  editTitle.value = ''
+  editDescription.value = ''
+}
 
 const handleAddTopic = async () => {
   if (!newTopicTitle.value.trim()) return
+  if (!props.currentParticipantId) {
+    addError.value = '参加者情報が見つかりません'
+    return
+  }
 
   adding.value = true
   addError.value = ''
@@ -115,6 +201,7 @@ const handleAddTopic = async () => {
   try {
     const result = await addTopicMutation.executeMutation({
       roomId: props.roomId,
+      participantId: props.currentParticipantId,
       title: newTopicTitle.value.trim(),
       description: newTopicDescription.value.trim() || null
     })
@@ -195,5 +282,56 @@ const handleStartOrganizing = async () => {
   } finally {
     organizing.value = false
   }
+}
+
+const handleUpdate = async () => {
+  if (!editingTopic.value) return
+  if (!props.currentParticipantId) {
+    editError.value = '参加者情報が見つかりません'
+    return
+  }
+
+  updating.value = true
+  editError.value = ''
+
+  const result = await updateTopicMutation.executeMutation({
+    topicId: editingTopic.value.id,
+    participantId: props.currentParticipantId,
+    title: editTitle.value,
+    description: editDescription.value || null,
+  })
+
+  if (result.data?.updateTopic?.topic) {
+    emit('refresh')
+    closeEditModal()
+  } else {
+    editError.value = result.data?.updateTopic?.errors?.[0] || 'トピックの更新に失敗しました'
+  }
+
+  updating.value = false
+}
+
+const handleDelete = async (topicId: string) => {
+  if (!props.currentParticipantId) {
+    editError.value = '参加者情報が見つかりません'
+    return
+  }
+  if (!confirm('このトピックを削除しますか？')) return
+
+  deleting.value = true
+  editError.value = ''
+
+  const result = await deleteTopicMutation.executeMutation({
+    topicId,
+    participantId: props.currentParticipantId,
+  })
+
+  if (result.data?.deleteTopic?.success) {
+    emit('refresh')
+  } else {
+    editError.value = result.data?.deleteTopic?.errors?.[0] || 'トピックの削除に失敗しました'
+  }
+
+  deleting.value = false
 }
 </script>

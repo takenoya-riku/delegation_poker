@@ -1,5 +1,5 @@
-mutation DeleteTopic($topicId: ID!) {
-  deleteTopic(topicId: $topicId) {
+mutation DeleteTopic($topicId: ID!, $participantId: ID!) {
+  deleteTopic(topicId: $topicId, participantId: $participantId) {
     success
     errors
   }

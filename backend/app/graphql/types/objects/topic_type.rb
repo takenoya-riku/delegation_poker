@@ -6,6 +6,7 @@ module Types
       field :description, String, null: true
       field :status, Types::Enums::TopicStatusEnum, null: false
       field :room_id, ID, null: false
+      field :participant_id, ID, null: true
       field :votes, [Types::Objects::VoteType], null: false
       field :created_at, GraphQL::Types::ISO8601DateTime, null: false
       field :updated_at, GraphQL::Types::ISO8601DateTime, null: false

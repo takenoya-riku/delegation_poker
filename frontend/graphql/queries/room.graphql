@@ -12,6 +12,7 @@ query Room($code: String!) {
       title
       description
       status
+      participantId
       allParticipantsVoted
       votes {
         id

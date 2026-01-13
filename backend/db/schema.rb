@@ -40,6 +40,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_11_120000) do
     t.string "status", default: "draft", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.uuid "participant_id"
+    t.index ["participant_id"], name: "index_topics_on_participant_id"
     t.index ["room_id"], name: "index_topics_on_room_id"
     t.index ["status"], name: "index_topics_on_status"
   end
@@ -59,6 +61,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_11_120000) do
 
   add_foreign_key "participants", "rooms"
   add_foreign_key "rooms", "participants", column: "room_master_id"
+  add_foreign_key "topics", "participants"
   add_foreign_key "topics", "rooms"
   add_foreign_key "votes", "participants"
   add_foreign_key "votes", "topics"

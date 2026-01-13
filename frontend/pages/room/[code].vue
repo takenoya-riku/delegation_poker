@@ -89,6 +89,7 @@
             :topics="room.topics"
             :room-id="room.id"
             :is-room-master="isRoomMaster"
+            :current-participant-id="currentParticipantId"
             @refresh="handleRefresh"
           />
         </div>
@@ -97,6 +98,7 @@
           <TopicOrganizeView
             :topics="room.topics"
             :is-room-master="isRoomMaster"
+            :current-participant-id="currentParticipantId"
             @refresh="handleRefresh"
           />
         </div>
