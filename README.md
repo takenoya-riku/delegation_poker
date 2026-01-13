@@ -204,6 +204,9 @@ delegation_poker/
 │   │   └── services/     # サービスオブジェクトの単体テスト
 │   └── ...
 ├── frontend/             # Nuxt 3アプリケーション
+│   ├── components/       # Vueコンポーネント
+│   │   ├── features/     # 機能単位のコンポーネント
+│   │   └── ui/           # UIパーツのコンポーネント
 │   ├── graphql/          # GraphQLクエリ/ミューテーションファイル
 │   ├── plugins/          # Nuxtプラグイン（urqlクライアントなど）
 │   └── ...
