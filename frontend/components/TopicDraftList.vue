@@ -14,14 +14,14 @@
               v-model="newTopicTitle"
               type="text"
               placeholder="トピックタイトル"
-              class="input input-bordered w-full focus:input-primary focus:ring-2 focus:ring-gray-400 transition-all duration-300"
+              class="input input-bordered w-full px-[5px] focus:input-primary focus:ring-2 focus:ring-gray-400 transition-all duration-300"
               required
             />
           </div>
           <div class="form-control">
             <textarea
               v-model="newTopicDescription"
-              class="textarea textarea-bordered w-full focus:ring-2 focus:ring-gray-400 transition-all duration-300"
+              class="textarea textarea-bordered w-full px-[5px] focus:ring-2 focus:ring-gray-400 transition-all duration-300"
               placeholder="説明（オプション）"
             ></textarea>
           </div>

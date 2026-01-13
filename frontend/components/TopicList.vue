@@ -9,14 +9,14 @@
               v-model="newTopicTitle"
               type="text"
               placeholder="トピックタイトル"
-              class="input input-bordered"
+              class="input input-bordered px-[5px]"
               required
             />
           </div>
           <div class="form-control">
             <textarea
               v-model="newTopicDescription"
-              class="textarea textarea-bordered"
+              class="textarea textarea-bordered px-[5px]"
               placeholder="説明（オプション）"
             ></textarea>
           </div>

@@ -16,7 +16,7 @@
             v-model="roomCode"
             type="text"
             placeholder="6桁のコード"
-            class="input input-bordered w-full focus:input-primary focus:ring-2 focus:ring-blue-500 transition-all duration-300 text-center text-2xl font-bold tracking-widest uppercase"
+            class="input input-bordered w-full px-[5px] focus:input-primary focus:ring-2 focus:ring-blue-500 transition-all duration-300 text-center text-2xl font-bold tracking-widest uppercase"
             maxlength="6"
             required
           />
@@ -29,7 +29,7 @@
             v-model="participantName"
             type="text"
             placeholder="例: 山田太郎"
-            class="input input-bordered w-full focus:input-primary focus:ring-2 focus:ring-blue-500 transition-all duration-300"
+            class="input input-bordered w-full px-[5px] focus:input-primary focus:ring-2 focus:ring-blue-500 transition-all duration-300"
             required
           />
         </div>

@@ -79,7 +79,7 @@
           <input
             v-model="editTitle"
             type="text"
-            class="input input-bordered w-full focus:ring-2 focus:ring-yellow-400 transition-all duration-300"
+            class="input input-bordered w-full px-[5px] focus:ring-2 focus:ring-yellow-400 transition-all duration-300"
             required
           />
         </div>
@@ -89,7 +89,7 @@
           </label>
           <textarea
             v-model="editDescription"
-            class="textarea textarea-bordered w-full focus:ring-2 focus:ring-yellow-400 transition-all duration-300"
+            class="textarea textarea-bordered w-full px-[5px] focus:ring-2 focus:ring-yellow-400 transition-all duration-300"
           ></textarea>
         </div>
         <div class="modal-action">
