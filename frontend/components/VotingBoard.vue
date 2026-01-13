@@ -17,15 +17,26 @@
     </div>
 
     <div class="space-y-5">
-      <div v-if="isRoomMaster && orderedTopics.length > 0" class="flex justify-end">
-        <button
-          class="btn px-6 py-2 rounded-xl font-semibold shadow-lg border-2 border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-300"
-          :disabled="revertingToOrganizing"
-          @click="handleRevertToOrganizing"
-        >
-          <span v-if="revertingToOrganizing" class="loading loading-spinner loading-sm mr-2"></span>
-          {{ revertingToOrganizing ? '整理フェーズに戻しています...' : '↩️ 整理フェーズに戻す' }}
-        </button>
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <button
+            v-if="isRoomMaster && orderedTopics.length > 0"
+            class="btn px-6 py-2 rounded-xl font-semibold shadow-lg border-2 border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-300"
+            :disabled="revertingToOrganizing"
+            @click="handleRevertToOrganizing"
+          >
+            <span v-if="revertingToOrganizing" class="loading loading-spinner loading-sm mr-2"></span>
+            {{ revertingToOrganizing ? '整理フェーズに戻しています...' : '↩️ 整理フェーズに戻す' }}
+          </button>
+        </div>
+        <div>
+          <button
+            class="btn px-6 py-2 rounded-xl font-semibold shadow-lg border-2 border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-300"
+            @click="exportVotesCsv"
+          >
+            📄 CSVを出力
+          </button>
+        </div>
       </div>
       <div v-if="revertError" class="alert alert-error shadow-md">
         <span>{{ revertError }}</span>
@@ -573,4 +584,47 @@ const orderedTopics = computed(() => {
 
   return ordered
 })
+
+const exportVotesCsv = () => {
+  const header = [
+    'トピックタイトル',
+    'トピック説明',
+    '投票種別',
+    '参加者名',
+    '投票レベル',
+  ]
+
+  const voteTypeLabel = (voteType: string) => {
+    const normalized = voteType.toLowerCase()
+    if (normalized === 'current_state') return '現状'
+    if (normalized === 'desired_state') return '理想'
+    return voteType
+  }
+
+  const rows = orderedTopics.value.flatMap(topic => {
+    return topic.votes.map(vote => [
+      topic.title,
+      topic.description || '',
+      voteTypeLabel(vote.voteType),
+      vote.participant.name,
+      String(vote.level),
+    ])
+  })
+
+  const escapeCsv = (value: string) => {
+    const needsQuote = value.includes(',') || value.includes('\n') || value.includes('"')
+    const escaped = value.replace(/"/g, '""')
+    return needsQuote ? `"${escaped}"` : escaped
+  }
+
+  const lines = [header, ...rows].map(columns => columns.map(escapeCsv).join(','))
+  const csv = `${lines.join('\n')}\n`
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `delegation-poker-votes-${new Date().toISOString()}.csv`
+  link.click()
+  URL.revokeObjectURL(url)
+}
 </script>
