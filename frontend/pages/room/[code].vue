@@ -31,6 +31,12 @@
                 </div>
               </div>
               <div class="flex items-center gap-3">
+                <NuxtLink
+                  to="/"
+                  class="btn px-4 py-2 rounded-lg font-semibold shadow-md border-2 border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-300"
+                >
+                  🏠 ホームへ戻る
+                </NuxtLink>
                 <button
                   v-if="isRoomMaster"
                   class="btn btn-sm px-4 py-2 rounded-lg bg-gradient-to-r from-red-500 to-pink-500 text-white border-0 hover:from-red-600 hover:to-pink-600 transition-all duration-300 shadow-md hover:shadow-lg"
