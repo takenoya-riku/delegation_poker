@@ -61,7 +61,7 @@ const loadRooms = () => {
   const raw = localStorage.getItem(savedRoomsKey)
   const parsed = raw ? JSON.parse(raw) : []
   const list = Array.isArray(parsed) ? parsed : []
-  rooms.value = list.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+  rooms.value = list
 }
 
 const formatDate = (value: string) => {
