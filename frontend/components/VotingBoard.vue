@@ -528,7 +528,7 @@ const handleRevealDesired = async (topic: { id: string }) => {
 
 const handleRevertToOrganizing = async () => {
   if (orderedTopics.value.length === 0) return
-  if (!confirm('投票フェーズを取り消して整理フェーズに戻しますか？')) return
+  if (!confirm('投票フェーズを取り消して整理フェーズに戻しますか？投票データが失われますがよろしいですか。')) return
 
   revertingToOrganizing.value = true
   revertError.value = ''
