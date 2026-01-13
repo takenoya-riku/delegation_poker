@@ -59,7 +59,7 @@
             :disabled="starting"
           >
             <span v-if="starting" class="loading loading-spinner loading-sm mr-2"></span>
-            {{ starting ? '投票フェーズに移行中...' : '📊 現状確認投票に進む' }}
+            {{ starting ? '投票フェーズに移行中...' : '📊 投票に進む' }}
           </button>
         </template>
         <span v-else class="text-sm text-gray-500">投票フェーズへの移行はルームマスターのみ可能です</span>
