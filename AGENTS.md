@@ -15,6 +15,7 @@
 - Ruby: RuboCopの推奨スタイルに従う
 - TypeScript/JavaScript: ESLintの推奨スタイルに従う
 - GraphQL: スキーマは明確で一貫性のある命名規則を使用
+- フロントエンドのAPI取得はPagesディレクトリのみで行う。共通化が必要な場合はcomposablesに実装する
 
 ## テスト
 

@@ -37,8 +37,7 @@
 </template>
 
 <script setup lang="ts">
-import { useMutation } from '@urql/vue'
-import { VoteDocument } from '~/graphql/generated/types'
+import { useVoteActions } from '~/composables/useVoteActions'
 
 const props = defineProps<{
   topicId: string
@@ -72,13 +71,13 @@ const currentVote = computed(() => {
 const voting = ref(false)
 const voteError = ref('')
 
-const voteMutation = useMutation(VoteDocument)
+const { vote } = useVoteActions()
 
 const handleVote = async (level: number) => {
   voting.value = true
   voteError.value = ''
 
-  const result = await voteMutation.executeMutation({
+  const result = await vote({
     topicId: props.topicId,
     participantId: props.participantId,
     level,
@@ -94,4 +93,3 @@ const handleVote = async (level: number) => {
   voting.value = false
 }
 </script>
-

@@ -63,15 +63,14 @@
 </template>
 
 <script setup lang="ts">
-import { useMutation } from '@urql/vue'
-import { JoinRoomDocument } from '~/graphql/generated/types'
+import { useRoomActions } from '~/composables/useRoomActions'
 
 const roomCode = ref('')
 const participantName = ref('')
 const joining = ref(false)
 const error = ref('')
 
-const joinRoomMutation = useMutation(JoinRoomDocument)
+const { joinRoom } = useRoomActions()
 
 const handleJoin = async () => {
   if (!roomCode.value.trim() || !participantName.value.trim()) return
@@ -79,7 +78,7 @@ const handleJoin = async () => {
   joining.value = true
   error.value = ''
 
-  const result = await joinRoomMutation.executeMutation({
+  const result = await joinRoom({
     code: roomCode.value.trim().toUpperCase(),
     name: participantName.value.trim()
   })

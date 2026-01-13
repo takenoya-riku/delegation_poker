@@ -53,8 +53,7 @@
 </template>
 
 <script setup lang="ts">
-import { useMutation } from '@urql/vue'
-import { AddTopicDocument } from '~/graphql/generated/types'
+import { useTopicActions } from '~/composables/useTopicActions'
 
 const props = defineProps<{
   topics: Array<{
@@ -76,7 +75,7 @@ const newTopicDescription = ref('')
 const adding = ref(false)
 const addError = ref('')
 
-const addTopicMutation = useMutation(AddTopicDocument)
+const { addTopic } = useTopicActions()
 
 const handleAddTopic = async () => {
   if (!newTopicTitle.value.trim()) return
@@ -85,7 +84,7 @@ const handleAddTopic = async () => {
   adding.value = true
   addError.value = ''
 
-  const result = await addTopicMutation.executeMutation({
+  const result = await addTopic({
     roomId: props.roomId,
     participantId: props.participantId,
     title: newTopicTitle.value.trim(),

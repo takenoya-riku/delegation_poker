@@ -174,8 +174,7 @@
 </template>
 
 <script setup lang="ts">
-import { useMutation } from '@urql/vue'
-import { RevealCurrentStateDocument, StartDesiredStateVotingDocument, RevealDesiredStateDocument } from '~/graphql/generated/types'
+import { useVoteActions } from '~/composables/useVoteActions'
 
 const props = defineProps<{
   topic: {
@@ -259,13 +258,11 @@ const canRevealDesired = computed(() => {
 const revealing = ref(false)
 const starting = ref(false)
 
-const revealCurrentMutation = useMutation(RevealCurrentStateDocument)
-const startDesiredMutation = useMutation(StartDesiredStateVotingDocument)
-const revealDesiredMutation = useMutation(RevealDesiredStateDocument)
+const { revealCurrentState, startDesiredStateVoting, revealDesiredState } = useVoteActions()
 
 const handleRevealCurrent = async () => {
   revealing.value = true
-  const result = await revealCurrentMutation.executeMutation({ topicId: props.topic.id })
+  const result = await revealCurrentState({ topicId: props.topic.id })
   if (result.data?.revealCurrentState?.topic) {
     emit('refresh')
   }
@@ -274,7 +271,7 @@ const handleRevealCurrent = async () => {
 
 const handleStartDesired = async () => {
   starting.value = true
-  const result = await startDesiredMutation.executeMutation({ topicId: props.topic.id })
+  const result = await startDesiredStateVoting({ topicId: props.topic.id })
   if (result.data?.startDesiredStateVoting?.topic) {
     emit('refresh')
   }
@@ -283,11 +280,10 @@ const handleStartDesired = async () => {
 
 const handleRevealDesired = async () => {
   revealing.value = true
-  const result = await revealDesiredMutation.executeMutation({ topicId: props.topic.id })
+  const result = await revealDesiredState({ topicId: props.topic.id })
   if (result.data?.revealDesiredState?.topic) {
     emit('refresh')
   }
   revealing.value = false
 }
 </script>
-

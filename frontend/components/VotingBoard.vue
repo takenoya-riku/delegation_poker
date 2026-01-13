@@ -266,9 +266,7 @@
 </template>
 
 <script setup lang="ts">
-import { useMutation } from '@urql/vue'
-import gql from 'graphql-tag'
-import { RevealCurrentStateDocument, StartDesiredStateVotingDocument, RevealDesiredStateDocument } from '~/graphql/generated/types'
+import { useVoteActions } from '~/composables/useVoteActions'
 
 type VoteTypeKey = 'current_state' | 'desired_state'
 type TopicVote = {
@@ -545,27 +543,14 @@ const isActionLoading = (topicId: string, action: ActionType) => {
   return actionLoading.value?.topicId === topicId && actionLoading.value?.action === action
 }
 
-const revealCurrentMutation = useMutation(RevealCurrentStateDocument)
-const startDesiredMutation = useMutation(StartDesiredStateVotingDocument)
-const revealDesiredMutation = useMutation(RevealDesiredStateDocument)
-const revertToOrganizingMutation = useMutation(gql`
-  mutation RevertToOrganizing($topicId: ID!) {
-    revertToOrganizing(topicId: $topicId) {
-      topic {
-        id
-        status
-      }
-      errors
-    }
-  }
-`)
+const { revealCurrentState, startDesiredStateVoting, revealDesiredState, revertToOrganizing } = useVoteActions()
 
 const revertingToOrganizing = ref(false)
 const revertError = ref('')
 
 const handleRevealCurrent = async (topic: { id: string }) => {
   actionLoading.value = { topicId: topic.id, action: 'reveal_current' }
-  const result = await revealCurrentMutation.executeMutation({ topicId: topic.id })
+  const result = await revealCurrentState({ topicId: topic.id })
   if (result.data?.revealCurrentState?.topic) {
     emit('refresh')
   }
@@ -574,7 +559,7 @@ const handleRevealCurrent = async (topic: { id: string }) => {
 
 const handleStartDesired = async (topic: { id: string }) => {
   actionLoading.value = { topicId: topic.id, action: 'start_desired' }
-  const result = await startDesiredMutation.executeMutation({ topicId: topic.id })
+  const result = await startDesiredStateVoting({ topicId: topic.id })
   if (result.data?.startDesiredStateVoting?.topic) {
     emit('refresh')
   }
@@ -583,7 +568,7 @@ const handleStartDesired = async (topic: { id: string }) => {
 
 const handleRevealDesired = async (topic: { id: string }) => {
   actionLoading.value = { topicId: topic.id, action: 'reveal_desired' }
-  const result = await revealDesiredMutation.executeMutation({ topicId: topic.id })
+  const result = await revealDesiredState({ topicId: topic.id })
   if (result.data?.revealDesiredState?.topic) {
     emit('refresh')
   }
@@ -598,7 +583,7 @@ const handleRevertToOrganizing = async () => {
   revertError.value = ''
 
   const results = await Promise.all(
-    orderedTopics.value.map(topic => revertToOrganizingMutation.executeMutation({ topicId: topic.id }))
+    orderedTopics.value.map(topic => revertToOrganizing({ topicId: topic.id }))
   )
 
   const errors = results

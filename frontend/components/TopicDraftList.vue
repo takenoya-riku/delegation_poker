@@ -201,8 +201,7 @@
 </template>
 
 <script setup lang="ts">
-import { useMutation } from '@urql/vue'
-import { AddTopicDocument, DeleteTopicDocument, StartOrganizingDocument, UpdateTopicDocument } from '~/graphql/generated/types'
+import { useTopicActions } from '~/composables/useTopicActions'
 
 const props = defineProps<{
   topics: Array<{
@@ -276,10 +275,7 @@ const updating = ref(false)
 const deleting = ref(false)
 const editError = ref('')
 
-const addTopicMutation = useMutation(AddTopicDocument)
-const startOrganizingMutation = useMutation(StartOrganizingDocument)
-const updateTopicMutation = useMutation(UpdateTopicDocument)
-const deleteTopicMutation = useMutation(DeleteTopicDocument)
+const { addTopic, startOrganizing, updateTopic, deleteTopic } = useTopicActions()
 
 const isOwnTopic = (topic: typeof props.topics[0]) => {
   return Boolean(props.currentParticipantId && topic.participantId === props.currentParticipantId)
@@ -313,7 +309,7 @@ const handleAddTopic = async () => {
   addError.value = ''
 
   try {
-    const result = await addTopicMutation.executeMutation({
+    const result = await addTopic({
       roomId: props.roomId,
       participantId: props.currentParticipantId,
       title: newTopicTitle.value.trim(),
@@ -366,7 +362,7 @@ const handleStartOrganizing = async () => {
   try {
     // すべてのdraftトピックをorganizingに移行
     const promises = draftTopics.value.map(topic =>
-      startOrganizingMutation.executeMutation({ topicId: topic.id })
+      startOrganizing({ topicId: topic.id })
     )
 
     const results = await Promise.all(promises)
@@ -408,7 +404,7 @@ const handleUpdate = async () => {
   updating.value = true
   editError.value = ''
 
-  const result = await updateTopicMutation.executeMutation({
+  const result = await updateTopic({
     topicId: editingTopic.value.id,
     participantId: props.currentParticipantId,
     title: editTitle.value,
@@ -435,7 +431,7 @@ const handleDelete = async (topicId: string) => {
   deleting.value = true
   editError.value = ''
 
-  const result = await deleteTopicMutation.executeMutation({
+  const result = await deleteTopic({
     topicId,
     participantId: props.currentParticipantId,
   })

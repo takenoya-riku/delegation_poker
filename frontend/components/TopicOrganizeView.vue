@@ -169,9 +169,7 @@
 </template>
 
 <script setup lang="ts">
-import { useMutation } from '@urql/vue'
-import gql from 'graphql-tag'
-import { UpdateTopicDocument, DeleteTopicDocument, OrganizeTopicDocument } from '~/graphql/generated/types'
+import { useTopicActions } from '~/composables/useTopicActions'
 
 const props = defineProps<{
   topics: Array<{
@@ -248,27 +246,14 @@ const closeEditModal = () => {
   editDescription.value = ''
 }
 
-const updateTopicMutation = useMutation(UpdateTopicDocument)
-const deleteTopicMutation = useMutation(DeleteTopicDocument)
-const organizeTopicMutation = useMutation(OrganizeTopicDocument)
-const revertToDraftMutation = useMutation(gql`
-  mutation RevertToDraft($topicId: ID!) {
-    revertToDraft(topicId: $topicId) {
-      topic {
-        id
-        status
-      }
-      errors
-    }
-  }
-`)
+const { updateTopic, deleteTopic, organizeTopic, revertToDraft } = useTopicActions()
 
 const handleDelete = async (topicId: string) => {
   if (!props.currentParticipantId) return
   if (!confirm('このトピックを削除しますか？')) return
 
   deleting.value = true
-  const result = await deleteTopicMutation.executeMutation({
+  const result = await deleteTopic({
     topicId,
     participantId: props.currentParticipantId,
   })
@@ -283,7 +268,7 @@ const handleUpdate = async () => {
   if (!props.currentParticipantId) return
 
   updating.value = true
-  const result = await updateTopicMutation.executeMutation({
+  const result = await updateTopic({
     topicId: editingTopic.value.id,
     participantId: props.currentParticipantId,
     title: editTitle.value,
@@ -300,7 +285,7 @@ const handleStartVoting = async () => {
   starting.value = true
   // すべてのorganizingトピックに対してorganizeTopicを呼び出す
   const promises = organizingTopics.value.map(topic =>
-    organizeTopicMutation.executeMutation({ topicId: topic.id })
+    organizeTopic({ topicId: topic.id })
   )
   await Promise.all(promises)
   emit('refresh')
@@ -316,7 +301,7 @@ const handleRevertToDraft = async () => {
 
   const results = await Promise.all(
     organizingTopics.value.map(topic =>
-      revertToDraftMutation.executeMutation({ topicId: topic.id })
+      revertToDraft({ topicId: topic.id })
     )
   )
 
