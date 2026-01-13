@@ -62,6 +62,7 @@ Delegation Pokerは、チーム内での権限委譲レベルを可視化し、�
 - **属性**:
   - `id`: UUID（主キー）
   - `room_id`: UUID（外部キー）
+  - `participant_id`: UUID（外部キー、作成者）
   - `title`: タイトル（必須）
   - `description`: 説明（オプション）
   - `status`: ステータス（デフォルト: `draft`）
@@ -75,9 +76,12 @@ Delegation Pokerは、チーム内での権限委譲レベルを可視化し、�
   - `created_at`, `updated_at`: タイムスタンプ
 - **関連**:
   - `belongs_to :room`
+  - `belongs_to :participant`（任意）
   - `has_many :votes`
 - **ビジネスロジック**:
   - 作成時は`draft`ステータス
+  - 対象出しフェーズは作成者のみ編集・削除可能
+  - 整理フェーズは参加者なら編集・削除可能
   - フェーズ遷移メソッド: `start_organizing!`, `start_current_voting!`, `reveal_current_state!`, `start_desired_voting!`, `reveal_desired_state!`, `complete!`
   - `all_participants_voted_current_state?`で現状確認の投票完了を判定
   - `all_participants_voted_desired_state?`でありたい姿の投票完了を判定
@@ -168,6 +172,7 @@ Delegation Pokerは、チーム内での権限委譲レベルを可視化し、�
 - **説明**: ルームにトピックを追加（対象出し）
 - **引数**:
   - `room_id: ID!`: ルームID
+  - `participant_id: ID!`: 参加者ID
   - `title: String!`: トピックタイトル
   - `description: String`: 説明（オプション）
 - **戻り値**:
@@ -178,27 +183,31 @@ Delegation Pokerは、チーム内での権限委譲レベルを可視化し、�
 
 #### updateTopic
 
-- **説明**: トピックを編集する（整理フェーズ用）
+- **説明**: トピックを編集する（対象出し/整理フェーズ用）
 - **引数**:
   - `topic_id: ID!`: トピックID
+  - `participant_id: ID!`: 参加者ID
   - `title: String`: タイトル（オプション）
   - `description: String`: 説明（オプション）
 - **戻り値**:
   - `topic: TopicType`: 更新されたトピック（null可能）
   - `errors: [String!]!`: エラーメッセージ配列
 - **ビジネスロジック**:
-  - 整理フェーズ（`organizing`）のトピックのみ編集可能
+  - 対象出しフェーズは作成者のみ編集可能
+  - 整理フェーズは参加者なら編集可能
 
 #### deleteTopic
 
-- **説明**: トピックを削除する（整理フェーズ用）
+- **説明**: トピックを削除する（対象出し/整理フェーズ用）
 - **引数**:
   - `topic_id: ID!`: トピックID
+  - `participant_id: ID!`: 参加者ID
 - **戻り値**:
   - `success: Boolean!`: 成功フラグ
   - `errors: [String!]!`: エラーメッセージ配列
 - **ビジネスロジック**:
-  - 整理フェーズ（`organizing`）のトピックのみ削除可能
+  - 対象出しフェーズは作成者のみ削除可能
+  - 整理フェーズは参加者なら削除可能
 
 #### mergeTopics
 
@@ -236,6 +245,29 @@ Delegation Pokerは、チーム内での権限委譲レベルを可視化し、�
 - **ビジネスロジック**:
   - 整理フェーズ（`organizing`）のトピックを現状投票フェーズ（`current_voting`）に移行
   - トピックが`organizing`ステータスである必要がある
+
+#### revertToDraft
+
+- **説明**: トピックを整理フェーズから対象出しフェーズに戻す
+- **引数**:
+  - `topic_id: ID!`: トピックID
+- **戻り値**:
+  - `topic: TopicType`: 更新されたトピック（null可能）
+  - `errors: [String!]!`: エラーメッセージ配列
+- **ビジネスロジック**:
+  - 整理フェーズ（`organizing`）のトピックのみ対象出しに戻せる
+
+#### revertToOrganizing
+
+- **説明**: トピックを投票フェーズから整理フェーズに戻す
+- **引数**:
+  - `topic_id: ID!`: トピックID
+- **戻り値**:
+  - `topic: TopicType`: 更新されたトピック（null可能）
+  - `errors: [String!]!`: エラーメッセージ配列
+- **ビジネスロジック**:
+  - 投票フェーズのトピックのみ整理フェーズに戻せる
+  - 投票データは削除される
 
 #### vote
 
@@ -325,7 +357,7 @@ Delegation Pokerは、チーム内での権限委譲レベルを可視化し、�
 2. 5秒ごとにポーリングして最新情報を取得
 3. 参加者一覧を表示
 4. ルーム情報をローカルに保存し、保存済みルーム一覧（`/rooms`）に表示
-4. フェーズに応じたUIを表示：
+5. フェーズに応じたUIを表示：
    - **対象出しフェーズ**: 対象の追加・確認
    - **整理フェーズ**: 統合・編集・削除
    - **投票フェーズ**: 投票ボードで投票・結果表示（権限レベルカードは画面上部に追従表示）
@@ -343,7 +375,8 @@ Delegation Pokerは、チーム内での権限委譲レベルを可視化し、�
 2. 重複や類似の対象を統合（`mergeTopics` mutation）
 3. 対象を編集（`updateTopic` mutation）
 4. 不要な対象を削除（`deleteTopic` mutation）
-5. 「現状確認投票に進む」ボタンで`organizeTopic` mutationを実行し、すべての`organizing`トピックを`current_voting`に移行
+5. 必要に応じて対象出しに戻す（`revertToDraft` mutation）
+6. 「投票に進む」ボタンで`organizeTopic` mutationを実行し、すべての`organizing`トピックを`current_voting`に移行
 
 ### 4.6 現状確認投票フロー
 
@@ -353,6 +386,8 @@ Delegation Pokerは、チーム内での権限委譲レベルを可視化し、�
 4. 既存の投票がある場合は公開前に限り更新可能
 5. 公開前は自分の投票のみ表示し、公開後は全員分を表示
 6. 全参加者が投票完了後、「現状確認結果を公開」ボタンで公開（`revealCurrentState` mutation）
+7. 必要に応じて整理フェーズに戻す（`revertToOrganizing` mutation、投票データは削除）
+8. 投票結果のCSVを出力可能
 
 ### 4.7 ありたい姿投票フロー
 

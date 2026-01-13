@@ -20,20 +20,14 @@
 ```
 spec/
 ├── requests/              # Request specs（HTTP経由のテスト、Controllerのみ）
-│   └── graphql_controller_spec.rb
 ├── graphql/               # GraphQL結合テスト（全てのmutationとresolver）
 │   ├── queries/           # Query resolverのテスト
 │   └── mutations/         # Mutation resolverのテスト
 ├── models/                # モデルの単体テスト
 ├── services/              # サービスオブジェクトの単体テスト
 ├── support/               # テストヘルパーと設定
-│   ├── factory_bot.rb
-│   ├── graphql_helper.rb          # Request spec用ヘルパー
-│   ├── graphql_schema_helper.rb  # GraphQL結合テスト用ヘルパー
-│   └── shoulda_matchers.rb
 ├── factories/             # Factory定義
-├── rails_helper.rb        # Rails用テストヘルパー
-└── spec_helper.rb         # RSpec基本設定
+└── ...
 ```
 
 ## テストヘルパー

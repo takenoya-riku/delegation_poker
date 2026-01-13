@@ -91,14 +91,13 @@ npm run dev
 GraphQLスキーマは`backend/app/graphql/`ディレクトリに定義されています。
 
 **ディレクトリ構造**:
-- `delegation_poker_schema.rb`: メインスキーマ
-- `mutations/`: 個別のミューテーション定義（`create_room.rb`, `join_room.rb`など）
-- `queries/`: 個別のクエリ定義（`room_query.rb`など）
+- `mutations/`: 個別のミューテーション定義
+- `queries/`: 個別のクエリ定義
 - `types/`: 型定義
-  - `base/`: ベースクラス（`base_object.rb`, `base_enum.rb`など）
-  - `root/`: ルート型（`query_type.rb`, `mutation_type.rb`）
-  - `objects/`: Object型（`room_type.rb`, `participant_type.rb`など）
-  - `enums/`: 列挙型（`delegation_level_enum.rb`など）
+  - `base/`: ベースクラス
+  - `root/`: ルート型
+  - `objects/`: Object型
+  - `enums/`: 列挙型
 
 **設計原則**: mutationsとqueriesディレクトリ配下の構成は、テスト（`spec/graphql/`）とAPI（`app/graphql/`）で一致させます。
 
@@ -197,28 +196,20 @@ delegation_poker/
 │   │   ├── controllers/
 │   │   └── ...
 │   ├── config/
+│   ├── db/
 │   ├── spec/             # RSpecテスト
 │   │   ├── requests/     # Request specs（HTTP経由のテスト）
 │   │   ├── graphql/      # GraphQL結合テスト
 │   │   ├── models/       # モデルの単体テスト
-│   │   └── services/    # サービスオブジェクトの単体テスト
-│   ├── Dockerfile
-│   └── Gemfile
-├── frontend/            # Nuxt 3アプリケーション
-│   ├── graphql/         # GraphQLクエリ/ミューテーションファイル
-│   │   └── generated/   # Code Generatorで生成された型定義
-│   ├── plugins/         # Nuxtプラグイン（urqlクライアントなど）
-│   ├── app.vue
-│   ├── codegen.yml      # GraphQL Code Generator設定
-│   ├── nuxt.config.ts
-│   └── package.json
-├── docker-compose.yml   # Docker Compose設定
-├── .env.example         # 環境変数テンプレート
-├── AGENTS.md            # エージェント用のプロジェクトルール
+│   │   └── services/     # サービスオブジェクトの単体テスト
+│   └── ...
+├── frontend/             # Nuxt 3アプリケーション
+│   ├── graphql/          # GraphQLクエリ/ミューテーションファイル
+│   ├── plugins/          # Nuxtプラグイン（urqlクライアントなど）
+│   └── ...
 ├── docs/                 # 詳細なドキュメント
-│   └── development/     # 開発ガイド
-│       └── testing.md   # テストガイド
-└── README.md
+│   └── development/      # 開発ガイド
+│       └── ...
 ```
 
 ## トラブルシューティング
@@ -240,7 +231,7 @@ delegation_poker/
 
 ## コードスタイル
 
-このプロジェクトでは、RuboCopを使用してコードスタイルを統一しています。
+このプロジェクトでは、RuboCopとESLintでコードスタイルを統一しています。
 
 ### RuboCopの実行
 
@@ -264,6 +255,14 @@ RuboCopの設定は`.rubocop.yml`に記載されています。主な設定：
 - Rails向けのルールを有効化
 - RSpec向けのルールを有効化
 
+### ESLintの実行
+
+```bash
+cd frontend
+npm run lint
+npm run lint:fix
+```
+
 ## Delegation Pokerの使い方
 
 ### ワークフロー
@@ -278,13 +277,15 @@ Delegation Pokerは以下の4つのフェーズで進行します：
 2. **対象の整理（Organizing）**
    - 追加された対象を確認
    - 重複や類似の対象を統合・編集・削除
-   - 「現状確認投票に進む」ボタンで次へ
+   - 「投票に進む」ボタンで次へ
 
 3. **現状確認（投票）**
    - 各対象に対して権限委譲レベル（1-7）で投票
    - 公開前は自分の投票のみ確認でき、公開後に全員の投票結果を表示
    - 投票は公開前に限り変更可能
    - 全員が投票完了後、「現状確認結果を公開」ボタンで結果を公開
+   - 必要に応じて整理フェーズに戻せる（投票データはリセット）
+   - トピックと投票結果のCSVを出力できる
 
 4. **ありたい姿（投票）**
    - 「ありたい姿投票を開始」ボタンで開始

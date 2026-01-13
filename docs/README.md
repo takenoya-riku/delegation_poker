@@ -6,20 +6,8 @@
 
 ```
 docs/
-├── README.md              # このファイル（ドキュメント管理ガイド）
-├── specification.md       # アプリケーション仕様書
-├── architecture/          # アーキテクチャ設計ドキュメント
-│   ├── backend.md         # バックエンド設計
-│   ├── frontend.md        # フロントエンド設計
-│   └── database.md        # データベース設計
-├── api/                   # API仕様書
-│   └── graphql.md         # GraphQL API仕様
 ├── development/           # 開発ガイド
-│   ├── setup.md           # セットアップ手順
-│   ├── testing.md         # テストガイド
-│   └── deployment.md      # デプロイ手順
-└── decisions/             # アーキテクチャ決定記録（ADR）
-    └── README.md          # ADR一覧
+└── ...
 ```
 
 ## Cursorでのドキュメント管理のベストプラクティス
@@ -35,7 +23,6 @@ docs/
 重要なコードの近くにドキュメントを配置：
 - `backend/app/graphql/README.md` - GraphQLスキーマの説明
 - `backend/spec/README.md` - テスト戦略の説明
-- `frontend/components/README.md` - コンポーネント設計
 
 ### 3. Cursorの機能を活用
 

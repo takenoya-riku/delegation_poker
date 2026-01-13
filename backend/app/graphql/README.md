@@ -6,26 +6,13 @@
 
 ```
 app/graphql/
-├── delegation_poker_schema.rb  # メインスキーマ定義
 ├── mutations/                   # ミューテーション定義
-│   ├── base_mutation.rb        # ミューテーションのベースクラス
-│   └── *.rb                    # 個別のミューテーションクラス
 ├── queries/                     # クエリ定義
-│   ├── base_query.rb           # クエリのベースクラス
-│   └── *.rb                    # 個別のクエリクラス
 └── types/                       # 型定義
     ├── base/                    # ベースクラス
-    │   ├── base_object.rb
-    │   ├── base_enum.rb
-    │   ├── base_input_object.rb
-    │   └── base_scalar.rb
-    ├── root/                     # ルート型
-    │   ├── mutation_type.rb     # ミューテーション型（mutations/を参照）
-    │   └── query_type.rb        # クエリ型（queries/を参照）
-    ├── objects/                  # Object型
-    │   └── *.rb                 # 個別のObject型（RoomType, ParticipantTypeなど）
-    └── enums/                    # 列挙型
-        └── *.rb                 # 個別の列挙型
+    ├── root/                    # ルート型
+    ├── objects/                 # Object型
+    └── enums/                   # 列挙型
 ```
 
 ## 設計原則
@@ -48,7 +35,7 @@ app/graphql/
    - `app/graphql/types/query_type.rb`に`field`を追加
 
 3. **テストの追加**:
-   - `spec/graphql/mutations/`または`spec/graphql/queries/`に対応するテストファイルを作成
+   - `spec/graphql/`配下の対応ディレクトリにテストを追加
    - APIとテストのディレクトリ構造を一致させる
 
 ## 使用方法
@@ -196,7 +183,4 @@ field :room, resolver: Queries::RoomQuery
 
 ### テストの追加
 
-APIとテストのディレクトリ構造を一致させるため、以下のようにテストファイルを作成します：
-
-- Mutation: `spec/graphql/mutations/create_room_spec.rb`
-- Query: `spec/graphql/queries/room_query_spec.rb`
+APIとテストのディレクトリ構造を一致させるため、MutationとQueryのディレクトリ対応を維持します。
