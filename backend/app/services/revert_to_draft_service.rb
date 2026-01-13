@@ -5,9 +5,7 @@ class RevertToDraftService
     topic = Topic.find_by(id: topic_id)
     return { success: false, topic: nil, errors: ["トピックが見つかりません"] } unless topic
 
-    unless topic.status == "organizing"
-      return { success: false, topic: topic, errors: ["整理フェーズのトピックのみ対象出しに戻せます"] }
-    end
+    return { success: false, topic: topic, errors: ["整理フェーズのトピックのみ対象出しに戻せます"] } unless topic.status == "organizing"
 
     if topic.update(status: "draft")
       { success: true, topic: topic, errors: [] }

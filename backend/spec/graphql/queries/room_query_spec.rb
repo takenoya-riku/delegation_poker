@@ -4,8 +4,8 @@ RSpec.describe "Room Query", type: :graphql do
   describe "room" do
     it "ルームコードでルーム情報を取得する" do
       room = create(:room)
-      create(:participant, room: room)
-      create(:topic, room: room)
+      participant = create(:participant, room: room)
+      create(:topic, room: room, participant: participant)
 
       result = execute_graphql(
         query: <<~GRAPHQL,

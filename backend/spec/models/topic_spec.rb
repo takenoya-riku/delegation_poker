@@ -31,7 +31,7 @@ RSpec.describe Topic, type: :model do
       room = create(:room)
       participant1 = create(:participant, room: room)
       participant2 = create(:participant, room: room)
-      topic = create(:topic, room: room)
+      topic = create(:topic, room: room, participant: participant1)
       create(:vote, topic: topic, participant: participant1)
       create(:vote, topic: topic, participant: participant2)
 
@@ -42,7 +42,7 @@ RSpec.describe Topic, type: :model do
       room = create(:room)
       participant1 = create(:participant, room: room)
       create(:participant, room: room)
-      topic = create(:topic, room: room)
+      topic = create(:topic, room: room, participant: participant1)
       create(:vote, topic: topic, participant: participant1)
 
       expect(topic.all_participants_voted?).to be false

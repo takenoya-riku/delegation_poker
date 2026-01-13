@@ -10,17 +10,39 @@ module Mutations
 
     def resolve(topic_id:, participant_id:)
       topic = Topic.find_by(id: topic_id)
-      return { success: false, errors: ["トピックが見つかりません"] } unless topic
+      return not_found_response unless topic
 
       participant = topic.room.participants.find_by(id: participant_id)
-      return { success: false, errors: ["参加者が見つかりません"] } unless participant
+      return participant_not_found_response unless participant
 
-      unless topic.status == "organizing" || (topic.status == "draft" && topic.participant_id == participant.id)
-        return { success: false, errors: ["自分の対象出しトピックのみ削除できます"] } if topic.status == "draft"
+      return forbidden_response(topic, participant) unless deletable?(topic, participant)
 
-        return { success: false, errors: ["対象出し/整理フェーズのトピックのみ削除できます"] }
+      destroy_topic(topic)
+    end
+
+    private
+
+    def not_found_response
+      { success: false, errors: ["トピックが見つかりません"] }
+    end
+
+    def participant_not_found_response
+      { success: false, errors: ["参加者が見つかりません"] }
+    end
+
+    def deletable?(topic, participant)
+      topic.status == "organizing" || (topic.status == "draft" && topic.participant_id == participant.id)
+    end
+
+    def forbidden_response(topic, participant)
+      if topic.status == "draft" && topic.participant_id != participant.id
+        return { success: false, errors: ["自分の対象出しトピックのみ削除できます"] }
       end
 
+      { success: false, errors: ["対象出し/整理フェーズのトピックのみ削除できます"] }
+    end
+
+    def destroy_topic(topic)
       if topic.destroy
         { success: true, errors: [] }
       else
