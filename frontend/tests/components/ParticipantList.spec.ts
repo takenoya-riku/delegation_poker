@@ -11,6 +11,7 @@ describe('ParticipantList', () => {
           { id: 'p2', name: '佐藤花子' },
         ],
         currentParticipantId: 'p1',
+        roomMasterId: 'p2',
       },
     })
 
@@ -18,5 +19,6 @@ describe('ParticipantList', () => {
     expect(wrapper.text()).toContain('山田太郎')
     expect(wrapper.text()).toContain('佐藤花子')
     expect(wrapper.text()).toContain('あなた')
+    expect(wrapper.text()).toContain('ルームマスター')
   })
 })

@@ -295,6 +295,7 @@ const props = defineProps<{
   participantId: string | null
   totalParticipants: number
   isRoomMaster: boolean
+  teamName?: string | null
 }>()
 
 const emit = defineEmits<{
@@ -668,11 +669,16 @@ const exportVotesCsv = () => {
 
   const lines = [header, ...rows].map(columns => columns.map(escapeCsv).join(','))
   const csv = `${lines.join('\n')}\n`
+  const sanitizedTeamName = (props.teamName || '')
+    .trim()
+    .replace(/[\\/:*?"<>|]/g, '')
+    .replace(/\s+/g, '-')
+  const filePrefix = sanitizedTeamName ? `${sanitizedTeamName}-` : ''
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
   const url = URL.createObjectURL(blob)
   const link = document.createElement('a')
   link.href = url
-  link.download = `delegation-poker-votes-${new Date().toISOString()}.csv`
+  link.download = `delegation-poker-votes-${filePrefix}${new Date().toISOString()}.csv`
   link.click()
   URL.revokeObjectURL(url)
 }

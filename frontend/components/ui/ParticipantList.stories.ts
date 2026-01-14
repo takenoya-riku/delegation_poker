@@ -18,5 +18,6 @@ export const Default: Story = {
       { id: 'p3', name: '鈴木一郎' },
     ],
     currentParticipantId: 'p2',
+    roomMasterId: 'p1',
   },
 }

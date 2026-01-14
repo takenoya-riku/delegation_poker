@@ -132,6 +132,7 @@
         <ParticipantList
           :participants="room.participants"
           :current-participant-id="currentParticipantId"
+          :room-master-id="roomMasterId"
         />
 
         <!-- フェーズに応じたコンポーネントを表示 -->
@@ -176,6 +177,7 @@
             :participant-id="currentParticipantId"
             :total-participants="room.participants.length"
             :is-room-master="isRoomMaster"
+            :team-name="room.name"
             @refresh="handleRefresh"
           />
         </div>

@@ -57,5 +57,6 @@ export const Default: Story = {
     participantId: 'p1',
     totalParticipants: 2,
     isRoomMaster: true,
+    teamName: 'チームA',
   },
 }
