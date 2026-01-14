@@ -12,6 +12,7 @@ const queryState = {
       id: string
       code: string
       name: string
+      roomMasterId?: string | null
       participants: Array<{ id: string; name: string }>
       topics: Array<{ id: string; status: string }>
     }
@@ -71,11 +72,13 @@ describe('ルームページ', () => {
   })
 
   it('対象出しフェーズの内容を表示する', async () => {
+    localStorage.setItem('participant_AB12CD', 'p1')
     queryState.data.value = {
       room: {
         id: 'room-1',
         code: 'ab12cd',
         name: 'テストルーム',
+        roomMasterId: 'p1',
         participants: [{ id: 'p1', name: '参加者' }],
         topics: [{ id: 't1', status: 'DRAFT' }],
       },
@@ -91,6 +94,29 @@ describe('ルームページ', () => {
     expect(wrapper.text()).toContain('ルームコード: ab12cd')
     expect(wrapper.find('[data-test="topic-draft-list"]').exists()).toBe(true)
     expect(localStorage.getItem('saved_rooms')).toContain('テストルーム')
+    wrapper.unmount()
+  })
+
+  it('参加していないルームの場合はエラーメッセージを表示する', async () => {
+    localStorage.setItem('participant_AB12CD', 'p-other')
+    queryState.data.value = {
+      room: {
+        id: 'room-1',
+        code: 'ab12cd',
+        name: 'テストルーム',
+        roomMasterId: 'p1',
+        participants: [{ id: 'p1', name: '参加者' }],
+        topics: [],
+      },
+    }
+
+    const wrapper = mount(RoomPage, {
+      global: { stubs },
+    })
+
+    await nextTick()
+
+    expect(wrapper.text()).toContain('ルームは解散しました')
     wrapper.unmount()
   })
 })

@@ -19,6 +19,15 @@
         >
           <span class="mr-1">{{ participantIcon(participant.id) }}</span>
           {{ participant.name }}
+          <button
+            v-if="canRemoveParticipant(participant.id)"
+            type="button"
+            class="ml-2 inline-flex items-center justify-center rounded-full bg-white/20 px-2 py-0.5 text-xs text-white hover:bg-white/30"
+            aria-label="参加者を削除"
+            @click.stop="emit('remove', participant.id)"
+          >
+            ✕
+          </button>
           <span
             v-if="participant.id === currentParticipantId"
             class="ml-2 text-xs bg-white/20 px-2 py-0.5 rounded-full"
@@ -44,7 +53,12 @@ const props = defineProps<{
     name: string
   }>
   currentParticipantId: string | null
+  isRoomMaster?: boolean
   roomMasterId?: string | null
+}>()
+
+const emit = defineEmits<{
+  remove: [participantId: string]
 }>()
 
 const participantBadgeClass = (participantId: string) => {
@@ -61,5 +75,11 @@ const participantIcon = (participantId: string) => {
   if (participantId === props.currentParticipantId) return '⭐'
   if (participantId === props.roomMasterId) return '👑'
   return '👤'
+}
+
+const canRemoveParticipant = (participantId: string) => {
+  if (!props.isRoomMaster) return false
+  if (!props.roomMasterId) return false
+  return participantId !== props.roomMasterId
 }
 </script>

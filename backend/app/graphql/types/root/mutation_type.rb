@@ -19,6 +19,7 @@ module Types
       field :start_desired_state_voting, mutation: Mutations::StartDesiredStateVoting
       field :reveal_desired_state, mutation: Mutations::RevealDesiredState
       field :reveal_topic, mutation: Mutations::RevealTopic
+      field :remove_participant, mutation: Mutations::RemoveParticipant
     end
   end
 end

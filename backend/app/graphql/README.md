@@ -53,6 +53,7 @@ query GetRoom($code: String!) {
     id
     name
     code
+    roomMasterId
     participants {
       id
       name
@@ -181,3 +182,7 @@ field :room, resolver: Queries::RoomQuery
 ### テストの追加
 
 APIとテストのディレクトリ構造を一致させるため、MutationとQueryのディレクトリ対応を維持します。
+
+### 参加者削除の設計方針
+
+ルームから参加者を削除するMutationはルームマスターのみ実行できます。

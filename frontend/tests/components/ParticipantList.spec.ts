@@ -12,6 +12,7 @@ describe('ParticipantList', () => {
         ],
         currentParticipantId: 'p1',
         roomMasterId: 'p2',
+        isRoomMaster: true,
       },
     })
 
@@ -20,5 +21,25 @@ describe('ParticipantList', () => {
     expect(wrapper.text()).toContain('佐藤花子')
     expect(wrapper.text()).toContain('あなた')
     expect(wrapper.text()).toContain('ルームマスター')
+  })
+
+  it('ルームマスターは他の参加者を削除できる', async () => {
+    const wrapper = mount(ParticipantList, {
+      props: {
+        participants: [
+          { id: 'p1', name: '山田太郎' },
+          { id: 'p2', name: '佐藤花子' },
+        ],
+        currentParticipantId: 'p1',
+        roomMasterId: 'p1',
+        isRoomMaster: true,
+      },
+    })
+
+    const removeButton = wrapper.findAll('button').find(button => button.text() === '✕')
+    if (!removeButton) throw new Error('削除ボタンが見つかりません')
+    await removeButton.trigger('click')
+
+    expect(wrapper.emitted('remove')?.[0]).toEqual(['p2'])
   })
 })

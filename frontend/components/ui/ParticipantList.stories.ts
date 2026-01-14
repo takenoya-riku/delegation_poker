@@ -19,5 +19,6 @@ export const Default: Story = {
     ],
     currentParticipantId: 'p2',
     roomMasterId: 'p1',
+    isRoomMaster: true,
   },
 }

@@ -3,6 +3,7 @@ query Room($code: String!) {
     id
     name
     code
+    roomMasterId
     participants {
       id
       name
