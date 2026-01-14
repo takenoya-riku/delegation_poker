@@ -2,14 +2,12 @@ import { describe, expect, it, vi } from 'vitest'
 import { useVoteActions } from '~/composables/useVoteActions'
 
 const useMutationMock = vi.fn()
-const gqlMock = vi.fn(() => 'RevertToOrganizingDocument')
-
 vi.mock('@urql/vue', () => ({
   useMutation: (document: unknown) => useMutationMock(document),
 }))
 
 vi.mock('graphql-tag', () => ({
-  default: gqlMock,
+  default: vi.fn(() => 'RevertToOrganizingDocument'),
 }))
 
 vi.mock('~/graphql/generated/types', () => ({

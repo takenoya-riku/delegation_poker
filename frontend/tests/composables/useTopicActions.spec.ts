@@ -2,14 +2,12 @@ import { describe, expect, it, vi } from 'vitest'
 import { useTopicActions } from '~/composables/useTopicActions'
 
 const useMutationMock = vi.fn()
-const gqlMock = vi.fn(() => 'RevertToDraftDocument')
-
 vi.mock('@urql/vue', () => ({
   useMutation: (document: unknown) => useMutationMock(document),
 }))
 
 vi.mock('graphql-tag', () => ({
-  default: gqlMock,
+  default: vi.fn(() => 'RevertToDraftDocument'),
 }))
 
 vi.mock('~/graphql/generated/types', () => ({

@@ -1,68 +1,57 @@
 <template>
-  <div class="card-modern card-gradient border-2 border-purple-200 hover:border-purple-300 transition-all duration-300">
-    <div class="card-body p-8">
-      <div class="flex items-center gap-3 mb-6">
-        <div class="w-12 h-12 rounded-full bg-gradient-primary flex items-center justify-center text-white text-xl font-bold shadow-lg">
-          ➕
-        </div>
-        <h2 class="card-title text-2xl text-gray-800">
-          ルームを作成
-        </h2>
-      </div>
-      <form
-        class="space-y-6"
-        @submit.prevent="handleCreate"
-      >
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text font-semibold text-gray-700">ルーム名</span>
-          </label>
-          <input
-            v-model="roomName"
-            type="text"
-            placeholder="例: プロジェクトAの意思決定"
-            class="input input-bordered w-full px-[5px] focus:input-primary focus:ring-2 focus:ring-purple-500 transition-all duration-300"
-            required
-          >
-        </div>
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text font-semibold text-gray-700">あなたの名前</span>
-          </label>
-          <input
-            v-model="participantName"
-            type="text"
-            placeholder="例: 山田太郎"
-            class="input input-bordered w-full px-[5px] focus:input-primary focus:ring-2 focus:ring-purple-500 transition-all duration-300"
-            required
-          >
-        </div>
-        <div class="form-control">
-          <button 
-            type="submit" 
-            class="btn-gradient w-full text-lg py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300" 
-            :disabled="creating"
-          >
-            <span
-              v-if="creating"
-              class="loading loading-spinner loading-sm mr-2"
-            />
-            {{ creating ? '作成中...' : '✨ ルームを作成' }}
-          </button>
-        </div>
-        <div
-          v-if="error"
-          class="alert alert-error mt-4 shadow-md animate-fade-in"
+  <FormCard
+    title="ルームを作成"
+    card-class="border-purple-200 hover:border-purple-300"
+    icon-class="bg-gradient-primary"
+  >
+    <template #icon>
+      ➕
+    </template>
+    <form
+      class="space-y-6"
+      @submit.prevent="handleCreate"
+    >
+      <FormField
+        v-model="roomName"
+        label="ルーム名"
+        placeholder="例: プロジェクトAの意思決定"
+        input-class="focus:input-primary focus:ring-2 focus:ring-purple-500 transition-all duration-300"
+        required
+      />
+      <FormField
+        v-model="participantName"
+        label="あなたの名前"
+        placeholder="例: 山田太郎"
+        input-class="focus:input-primary focus:ring-2 focus:ring-purple-500 transition-all duration-300"
+        required
+      />
+      <div class="form-control">
+        <button
+          type="submit"
+          class="btn-gradient w-full text-lg py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+          :disabled="creating"
         >
-          <span>{{ error }}</span>
-        </div>
-      </form>
-    </div>
-  </div>
+          <span
+            v-if="creating"
+            class="loading loading-spinner loading-sm mr-2"
+          />
+          {{ creating ? '作成中...' : '✨ ルームを作成' }}
+        </button>
+      </div>
+      <div
+        v-if="error"
+        class="alert alert-error mt-4 shadow-md animate-fade-in"
+      >
+        <span>{{ error }}</span>
+      </div>
+    </form>
+  </FormCard>
 </template>
 
 <script setup lang="ts">
 import { useRoomActions } from '~/composables/useRoomActions'
+import FormCard from '~/components/ui/FormCard.vue'
+import FormField from '~/components/ui/FormField.vue'
 
 const roomName = ref('')
 const participantName = ref('')
