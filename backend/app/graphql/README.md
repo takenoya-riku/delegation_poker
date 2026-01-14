@@ -136,9 +136,6 @@ module Mutations
     field :errors, [String], null: false
 
     def resolve(name:)
-      # TODO: 認証認可の実装
-      # authorize! :create, Room
-
       result = CreateRoomService.call(name: name)
 
       {

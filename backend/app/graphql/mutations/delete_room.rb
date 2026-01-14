@@ -9,9 +9,6 @@ module Mutations
     field :errors, [String], null: false
 
     def resolve(room_id:, participant_id:)
-      # TODO: 認証認可の実装
-      # authorize! :delete, Room.find_by(id: room_id)
-
       result = DeleteRoomService.call(room_id: room_id, participant_id: participant_id)
 
       {

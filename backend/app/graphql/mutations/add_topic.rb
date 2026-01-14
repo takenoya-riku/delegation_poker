@@ -11,9 +11,6 @@ module Mutations
     field :errors, [String], null: false
 
     def resolve(room_id:, participant_id:, title:, description: nil)
-      # TODO: 認証認可の実装
-      # authorize! :add_topic, Room.find_by(id: room_id)
-
       result = AddTopicService.call(
         room_id: room_id,
         participant_id: participant_id,

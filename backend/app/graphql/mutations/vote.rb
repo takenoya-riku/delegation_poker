@@ -11,9 +11,6 @@ module Mutations
     field :errors, [String], null: false
 
     def resolve(topic_id:, participant_id:, level:, vote_type:)
-      # TODO: 認証認可の実装
-      # authorize! :vote, Topic.find_by(id: topic_id)
-
       result = VoteService.call(
         topic_id: topic_id,
         participant_id: participant_id,

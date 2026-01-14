@@ -42,9 +42,6 @@ end
 ```ruby
 # GraphQL MutationやResolverでの使用例
 def resolve(name:)
-  # TODO: 認証認可の実装
-  # authorize! :create, Room
-
   result = CreateRoomService.call(name: name)
 
   {

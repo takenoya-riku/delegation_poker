@@ -8,9 +8,6 @@ module Mutations
     field :errors, [String], null: false
 
     def resolve(topic_id:)
-      # TODO: 認証認可の実装
-      # authorize! :reveal, Topic.find_by(id: topic_id)
-
       result = RevealTopicService.call(topic_id: topic_id)
 
       {
