@@ -8,8 +8,8 @@
     "codegen:watch": "graphql-codegen --config codegen.yml --watch",
     "dev": "nuxt dev --port 8088",
     "generate": "nuxt generate",
-    "lint": "eslint . --ext .js,.ts,.vue",
-    "lint:fix": "eslint . --ext .js,.ts,.vue --fix",
+    "lint": "eslint . --ext .js,.ts,.vue && vue-tsc --noEmit -p tsconfig.eslint.json",
+    "lint:fix": "eslint . --ext .js,.ts,.vue --fix && vue-tsc --noEmit -p tsconfig.eslint.json",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "test": "vitest"
@@ -37,6 +37,7 @@
     "@vue/test-utils": "^2.4.6",
     "jsdom": "^25.0.1",
     "vitest": "^2.1.8",
+    "vue-tsc": "^2.1.8",
     "vue-eslint-parser": "^9.4.3"
   }
 }

@@ -31,6 +31,7 @@ npm run lint
 ```bash
 npm run lint:fix
 ```
+`lint:fix` では ESLint と型チェックを実行します。
 
 ## テスト
 

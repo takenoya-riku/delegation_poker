@@ -7,7 +7,15 @@ const executeQueryMock = vi.fn()
 const executeMutationMock = vi.fn()
 
 const queryState = {
-  data: ref(null),
+  data: ref<null | {
+    room: {
+      id: string
+      code: string
+      name: string
+      participants: Array<{ id: string; name: string }>
+      topics: Array<{ id: string; status: string }>
+    }
+  }>(null),
   fetching: ref(false),
   error: ref(null),
   executeQuery: executeQueryMock,
