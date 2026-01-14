@@ -13,12 +13,7 @@
             以前開いたルームを一覧で確認できます
           </p>
         </div>
-        <NuxtLink
-          to="/"
-          class="btn-gradient px-6 py-2 rounded-full text-sm font-semibold shadow-lg"
-        >
-          ホームに戻る
-        </NuxtLink>
+        <HomeBackButton variant="gradient" />
       </div>
 
       <div
@@ -69,6 +64,8 @@
 </template>
 
 <script setup lang="ts">
+import HomeBackButton from '~/components/ui/HomeBackButton.vue'
+
 type SavedRoom = {
   code: string
   name: string
