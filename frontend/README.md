@@ -44,3 +44,18 @@ npm run test
 ```bash
 npm run storybook
 ```
+
+## 開発ルール
+
+- 新しいコンポーネントを作成したら、対応する Storybook のストーリーも作成する
+- フロントエンドに機能追加を行ったら、必ずテストを実装する
+
+## テスト構造
+
+- テストは `tests/` 配下に配置する
+- ページは `tests/pages/`、コンポーネントは `tests/components/`、composables は `tests/composables/` に分けて管理する
+
+## Storybook 構造
+
+- Storybook の設定は `.storybook/` 配下に配置する
+- コンポーネントの Story は `components/` 配下で管理する
