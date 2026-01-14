@@ -12,6 +12,15 @@ Rails 8 API + Nuxt 3 + PostgreSQL アプリケーション
 
 ## セットアップ
 
+### 0. Voltaの準備
+
+このプロジェクトはVoltaでNode.js環境を管理します。事前にVoltaをインストールし、Node.jsとnpmを準備してください。
+
+```bash
+volta install node
+volta install npm
+```
+
 ### 1. 環境変数の設定
 
 プロジェクトルートに`.env`ファイルを作成し、以下の内容を設定してください：
