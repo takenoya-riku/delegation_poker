@@ -17,6 +17,10 @@ Rails 8 API + Nuxt 3 + PostgreSQL アプリケーション
 プロジェクトルートに`.env`ファイルを作成し、以下の内容を設定してください：
 
 ```bash
+cp .env.example .env
+```
+
+```bash
 # PostgreSQL設定
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
