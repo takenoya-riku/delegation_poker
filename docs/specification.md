@@ -12,7 +12,8 @@ Delegation Pokerは、チーム内での権限委譲レベルを可視化し、�
 - 話し合いたい対象出し
 - 対象の整理（統合・編集・削除）
 - 現状確認の投票（権限委譲レベル1-7）
-- ありたい姿の投票（権限委譲レベル1-7）
+- 理想の投票（権限委譲レベル1-7）
+- 参加者の削除（ルームマスターのみ）
 - 投票結果の公開と統計表示
 - リアルタイム更新（ポーリング）
 
@@ -34,13 +35,16 @@ Delegation Pokerは、チーム内での権限委譲レベルを可視化し、�
   - `id`: UUID（主キー）
   - `name`: ルーム名（必須）
   - `code`: 6桁の英数字コード（必須、一意、自動生成）
+  - `room_master_id`: ルームマスターの参加者ID（任意）
   - `created_at`, `updated_at`: タイムスタンプ
 - **関連**:
   - `has_many :participants`
   - `has_many :topics`
+  - `belongs_to :room_master`（任意）
 - **ビジネスロジック**:
   - 作成時に6桁のランダムコードを自動生成（大文字英数字）
   - コードは一意である必要がある
+  - 参加者が初めて参加したタイミングでルームマスターを設定
 
 ### 2.2 Participant（参加者）
 
@@ -55,6 +59,7 @@ Delegation Pokerは、チーム内での権限委譲レベルを可視化し、�
   - `has_many :votes`
 - **ビジネスロジック**:
   - 同じルーム内で同じ名前の参加者が複数存在可能
+  - ルームマスターは参加者を削除可能（自身は削除不可）
 
 ### 2.3 Topic（トピック）
 
@@ -70,8 +75,8 @@ Delegation Pokerは、チーム内での権限委譲レベルを可視化し、�
     - `organizing`: 整理フェーズ
     - `current_voting`: 現状確認投票中
     - `current_revealed`: 現状確認結果公開済み
-    - `desired_voting`: ありたい姿投票中
-    - `desired_revealed`: ありたい姿結果公開済み
+    - `desired_voting`: 理想投票中
+    - `desired_revealed`: 理想結果公開済み
     - `completed`: 完了
   - `created_at`, `updated_at`: タイムスタンプ
 - **関連**:
@@ -81,10 +86,10 @@ Delegation Pokerは、チーム内での権限委譲レベルを可視化し、�
 - **ビジネスロジック**:
   - 作成時は`draft`ステータス
   - 対象出しフェーズは作成者のみ編集・削除可能
-  - 整理フェーズは参加者なら編集・削除可能
+  - 整理フェーズはルームマスターのみ編集・削除可能
   - フェーズ遷移メソッド: `start_organizing!`, `start_current_voting!`, `reveal_current_state!`, `start_desired_voting!`, `reveal_desired_state!`, `complete!`
   - `all_participants_voted_current_state?`で現状確認の投票完了を判定
-  - `all_participants_voted_desired_state?`でありたい姿の投票完了を判定
+  - `all_participants_voted_desired_state?`で理想の投票完了を判定
 
 ### 2.4 Vote（投票）
 
@@ -100,9 +105,9 @@ Delegation Pokerは、チーム内での権限委譲レベルを可視化し、�
   - `belongs_to :topic`
   - `belongs_to :participant`
 - **ビジネスロジック**:
-  - トピック、参加者、vote_typeの組み合わせは一意（同じ参加者は1つのトピックに対して現状確認とありたい姿の2回投票可能）
+  - トピック、参加者、vote_typeの組み合わせは一意（同じ参加者は1つのトピックに対して現状確認と理想の2回投票可能）
   - 現状確認投票はトピックが`current_voting`ステータスの場合のみ可能
-  - ありたい姿投票はトピックが`desired_voting`ステータスの場合のみ可能
+  - 理想投票はトピックが`desired_voting`ステータスの場合のみ可能
   - レベルは1-7の範囲
 
 ### 2.5 Delegation Level（権限委譲レベル）
@@ -128,6 +133,7 @@ Delegation Pokerは、チーム内での権限委譲レベルを可視化し、�
 - **ビジネスロジック**:
   - 大文字小文字を区別しない検索
   - 存在しない場合は`null`を返す
+  - `roomMasterId`を含めて返す
 
 ### 3.2 Mutations
 
@@ -166,6 +172,20 @@ Delegation Pokerは、チーム内での権限委譲レベルを可視化し、�
 - **ビジネスロジック**:
   - 参加者がルームに属している必要がある
   - ルームマスターのみ削除可能
+
+#### removeParticipant
+
+- **説明**: ルームから参加者を削除
+- **引数**:
+  - `room_id: ID!`: ルームID
+  - `participant_id: ID!`: 操作する参加者ID
+  - `target_participant_id: ID!`: 削除対象の参加者ID
+- **戻り値**:
+  - `success: Boolean!`: 成功フラグ
+  - `errors: [String!]!`: エラーメッセージ配列
+- **ビジネスロジック**:
+  - ルームマスターのみ削除可能
+  - ルームマスター自身は削除不可
 
 #### addTopic
 
@@ -284,7 +304,7 @@ Delegation Pokerは、チーム内での権限委譲レベルを可視化し、�
   - 既存の投票がある場合は更新
   - トピックと参加者が同じルームに属している必要がある
   - 現状確認投票はトピックが`current_voting`ステータスである必要がある
-  - ありたい姿投票はトピックが`desired_voting`ステータスである必要がある
+  - 理想投票はトピックが`desired_voting`ステータスである必要がある
 
 #### revealCurrentState
 
@@ -300,7 +320,7 @@ Delegation Pokerは、チーム内での権限委譲レベルを可視化し、�
 
 #### startDesiredStateVoting
 
-- **説明**: ありたい姿投票フェーズを開始する
+- **説明**: 理想投票フェーズを開始する
 - **引数**:
   - `topic_id: ID!`: トピックID
 - **戻り値**:
@@ -312,7 +332,7 @@ Delegation Pokerは、チーム内での権限委譲レベルを可視化し、�
 
 #### revealDesiredState
 
-- **説明**: ありたい姿の投票結果を公開
+- **説明**: 理想の投票結果を公開
 - **引数**:
   - `topic_id: ID!`: トピックID
 - **戻り値**:
@@ -373,8 +393,8 @@ Delegation Pokerは、チーム内での権限委譲レベルを可視化し、�
 
 1. `TopicOrganizeView`で対象一覧を表示
 2. 重複や類似の対象を統合（`mergeTopics` mutation）
-3. 対象を編集（`updateTopic` mutation）
-4. 不要な対象を削除（`deleteTopic` mutation）
+3. 対象を編集（`updateTopic` mutation、ルームマスターのみ）
+4. 不要な対象を削除（`deleteTopic` mutation、ルームマスターのみ）
 5. 必要に応じて対象出しに戻す（`revertToDraft` mutation）
 6. 「投票に進む」ボタンで`organizeTopic` mutationを実行し、すべての`organizing`トピックを`current_voting`に移行
 
@@ -389,16 +409,22 @@ Delegation Pokerは、チーム内での権限委譲レベルを可視化し、�
 7. 必要に応じて整理フェーズに戻す（`revertToOrganizing` mutation、投票データは削除）
 8. 投票結果のCSVを出力可能
 
-### 4.7 ありたい姿投票フロー
+### 4.7 理想投票フロー
 
-1. 現状確認結果公開後、「ありたい姿投票を開始」ボタンで開始（`startDesiredStateVoting` mutation）
-2. 投票ボードで「ありたい姿」の投票UIを表示
+1. 現状確認結果公開後、「理想投票を開始」ボタンで開始（`startDesiredStateVoting` mutation）
+2. 投票ボードで「理想」の投票UIを表示
 3. 1-7のボタンから選択
 4. `vote` mutationを実行（`vote_type: DESIRED_STATE`）
 5. 既存の投票がある場合は公開前に限り更新可能
 6. 公開前は自分の投票のみ表示し、公開後は全員分を表示
-7. 全参加者が投票完了後、「ありたい姿結果を公開」ボタンで公開（`revealDesiredState` mutation）
-8. 現状確認とありたい姿の結果を比較表示
+7. 全参加者が投票完了後、「理想結果を公開」ボタンで公開（`revealDesiredState` mutation）
+8. 現状確認と理想の結果を比較表示
+
+### 4.8 参加者削除フロー
+
+1. ルームマスターが参加者一覧から削除ボタンを選択
+2. `removeParticipant` mutationを実行
+3. 成功時に参加者一覧を再取得
 
 ## 5. ビジネスロジック
 
@@ -407,29 +433,30 @@ Delegation Pokerは、チーム内での権限委譲レベルを可視化し、�
 - ルームは6桁のランダムコードで識別
 - コードは大文字小文字を区別しない検索が可能
 - ルームはルームマスターのみ削除可能
+- 参加者の削除はルームマスターのみ可能（自身は削除不可）
 
 ### 5.2 フェーズ管理
 
 - **対象出しフェーズ**: トピックを追加（status: `draft`）
-- **整理フェーズ**: トピックを統合・編集・削除（status: `organizing`）
+- **整理フェーズ**: トピックを統合・編集・削除（status: `organizing`、編集・削除はルームマスターのみ）
 - **現状確認投票フェーズ**: 現状確認の投票を実施（status: `current_voting`）
 - **現状確認結果公開**: 現状確認の結果を公開（status: `current_revealed`）
-- **ありたい姿投票フェーズ**: ありたい姿の投票を実施（status: `desired_voting`）
-- **ありたい姿結果公開**: ありたい姿の結果を公開（status: `desired_revealed`）
+- **理想投票フェーズ**: 理想の投票を実施（status: `desired_voting`）
+- **理想結果公開**: 理想の結果を公開（status: `desired_revealed`）
 - **フェーズ移行操作**: ルームマスターのみが実行可能（整理フェーズ開始、現状確認投票開始）
 
 ### 5.3 投票管理
 
-- 1つのトピックに対して1人の参加者は現状確認とありたい姿の2回投票可能（各1回、公開前は更新可能）
+- 1つのトピックに対して1人の参加者は現状確認と理想の2回投票可能（各1回、公開前は更新可能）
 - 現状確認投票はトピックが`current_voting`ステータスの場合のみ可能
-- ありたい姿投票はトピックが`desired_voting`ステータスの場合のみ可能
+- 理想投票はトピックが`desired_voting`ステータスの場合のみ可能
 - 投票結果が公開されると、そのフェーズの新しい投票は不可
 - 公開前は自分の投票のみ表示し、公開後に全員の投票結果を表示
 
 ### 5.4 結果公開
 
 - 現状確認結果公開: トピックのステータスを`current_voting`から`current_revealed`に変更
-- ありたい姿結果公開: トピックのステータスを`desired_voting`から`desired_revealed`に変更
+- 理想結果公開: トピックのステータスを`desired_voting`から`desired_revealed`に変更
 - 公開後は以下の統計情報を表示：
   - 平均投票レベル（`average_vote_level`）
   - 最小投票レベル（`min_vote_level`）

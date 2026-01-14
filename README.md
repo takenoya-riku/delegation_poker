@@ -92,6 +92,10 @@ npm run dev
 
 ### フロントエンド（Nuxt 3）
 
+#### ローカルでの動作確認
+
+複数ユーザーを同時に検証する場合は、ローカルストレージが共有されないよう別ブラウザで開いて確認してください。
+
 - 開発サーバー: `http://localhost:8088`
 - APIベースURLは環境変数`NUXT_PUBLIC_API_BASE_URL`で設定されます
 
@@ -102,6 +106,13 @@ npm run dev
 ### バックエンド（Rails）
 
 GraphQLスキーマは`backend/app/graphql/`ディレクトリに定義されています。
+
+スキーマ更新時は以下を実行してください：
+
+```bash
+cd backend
+rails graphql:schema:dump
+```
 
 **ディレクトリ構造**:
 - `mutations/`: 個別のミューテーション定義

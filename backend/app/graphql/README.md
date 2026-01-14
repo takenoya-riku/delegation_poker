@@ -98,6 +98,15 @@ mutation AddTopic($roomId: ID!, $participantId: ID!, $title: String!, $descripti
 ```
 
 ```graphql
+mutation RemoveParticipant($roomId: ID!, $participantId: ID!, $targetParticipantId: ID!) {
+  removeParticipant(roomId: $roomId, participantId: $participantId, targetParticipantId: $targetParticipantId) {
+    success
+    errors
+  }
+}
+```
+
+```graphql
 mutation RevertToDraft($topicId: ID!) {
   revertToDraft(topicId: $topicId) {
     topic {
@@ -186,3 +195,4 @@ APIとテストのディレクトリ構造を一致させるため、Mutationと
 ### 参加者削除の設計方針
 
 ルームから参加者を削除するMutationはルームマスターのみ実行できます。
+ルームマスター自身は削除できません。
