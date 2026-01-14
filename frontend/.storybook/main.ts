@@ -4,6 +4,7 @@ import type { StorybookConfig } from '@storybook/vue3-vite'
 import autoprefixer from 'autoprefixer'
 import tailwindcss from 'tailwindcss'
 import vue from '@vitejs/plugin-vue'
+import type { UserConfig } from 'vite'
 
 const projectRoot = fileURLToPath(new URL('../', import.meta.url))
 const urqlMockPath = fileURLToPath(new URL('./mocks/urql.ts', import.meta.url))
@@ -17,7 +18,7 @@ const config: StorybookConfig = {
     name: '@storybook/vue3-vite',
     options: {},
   },
-  viteFinal: async (viteConfig) => {
+  viteFinal: async (viteConfig: UserConfig) => {
     const alias = viteConfig.resolve?.alias ?? {}
 
     return {

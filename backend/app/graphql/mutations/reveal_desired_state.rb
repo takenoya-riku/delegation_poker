@@ -11,7 +11,7 @@ module Mutations
       topic = Topic.find_by(id: topic_id)
       return { topic: nil, errors: ["トピックが見つかりません"] } unless topic
 
-      return { topic: topic, errors: ["ありたい姿投票中のトピックのみ公開できます"] } unless topic.status == "desired_voting"
+      return { topic: topic, errors: ["理想投票中のトピックのみ公開できます"] } unless topic.status == "desired_voting"
 
       if topic.reveal_desired_state!
         { topic: topic, errors: [] }

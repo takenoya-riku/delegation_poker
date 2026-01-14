@@ -2,7 +2,7 @@ require "rails_helper"
 
 RSpec.describe Mutations::RevealDesiredState, type: :graphql do
   describe "#resolve" do
-    it "ありたい姿投票中のトピックを公開できる" do
+    it "理想投票中のトピックを公開できる" do
       topic = create(:topic, status: "desired_voting")
 
       result = execute_mutation(
@@ -25,7 +25,7 @@ RSpec.describe Mutations::RevealDesiredState, type: :graphql do
       expect(data["revealDesiredState"]["errors"]).to eq([])
     end
 
-    it "ありたい姿投票中以外のトピックはエラーを返す" do
+    it "理想投票中以外のトピックはエラーを返す" do
       topic = create(:topic, status: "current_revealed")
 
       result = execute_mutation(
@@ -43,7 +43,7 @@ RSpec.describe Mutations::RevealDesiredState, type: :graphql do
       )
 
       data = graphql_data(result)
-      expect(data["revealDesiredState"]["errors"]).to include("ありたい姿投票中のトピックのみ公開できます")
+      expect(data["revealDesiredState"]["errors"]).to include("理想投票中のトピックのみ公開できます")
     end
   end
 end

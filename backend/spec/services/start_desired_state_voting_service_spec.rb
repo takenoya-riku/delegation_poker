@@ -3,7 +3,7 @@ require "rails_helper"
 RSpec.describe StartDesiredStateVotingService, type: :service do
   describe "#call" do
     context "現状確認結果公開済みのトピックの場合" do
-      it "ありたい姿投票に進める" do
+      it "理想投票に進める" do
         topic = create(:topic, status: "current_revealed")
 
         result = StartDesiredStateVotingService.call(topic_id: topic.id)
@@ -21,7 +21,7 @@ RSpec.describe StartDesiredStateVotingService, type: :service do
         result = StartDesiredStateVotingService.call(topic_id: topic.id)
 
         expect(result[:success]).to be false
-        expect(result[:errors]).to include("現状確認結果が公開済みのトピックのみ、ありたい姿投票を開始できます")
+        expect(result[:errors]).to include("現状確認結果が公開済みのトピックのみ、理想投票を開始できます")
       end
     end
 

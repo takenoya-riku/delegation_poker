@@ -6,7 +6,7 @@ class StartDesiredStateVotingService
     return { success: false, topic: nil, errors: ["トピックが見つかりません"] } unless topic
 
     unless topic.status == "current_revealed"
-      return { success: false, topic: topic, errors: ["現状確認結果が公開済みのトピックのみ、ありたい姿投票を開始できます"] }
+      return { success: false, topic: topic, errors: ["現状確認結果が公開済みのトピックのみ、理想投票を開始できます"] }
     end
 
     if topic.start_desired_voting!

@@ -778,7 +778,7 @@
             },
             {
               "name": "startDesiredStateVoting",
-              "description": "ありたい姿投票フェーズを開始する",
+              "description": "理想投票フェーズを開始する",
               "args": [
                 {
                   "name": "topicId",
@@ -1777,7 +1777,7 @@
             },
             {
               "name": "DESIRED_VOTING",
-              "description": "ありたい姿投票中",
+              "description": "理想投票中",
               "isDeprecated": false,
               "deprecationReason": null
             },

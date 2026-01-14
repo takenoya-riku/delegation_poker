@@ -17,7 +17,7 @@ class Vote < ApplicationRecord
     when "current_state"
       errors.add(:topic, "は現状確認投票中でなければなりません") unless topic.status == "current_voting"
     when "desired_state"
-      errors.add(:topic, "はありたい姿投票中でなければなりません") unless topic.status == "desired_voting"
+      errors.add(:topic, "は理想投票中でなければなりません") unless topic.status == "desired_voting"
     end
   end
 end

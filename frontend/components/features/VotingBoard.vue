@@ -132,7 +132,7 @@
                   v-if="isActionLoading(topic.id, 'start_desired')"
                   class="loading loading-spinner loading-sm mr-2"
                 />
-                ありたい姿投票を開始
+                理想投票を開始
               </button>
               <button
                 v-if="canRevealDesired(topic)"

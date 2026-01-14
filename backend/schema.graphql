@@ -202,7 +202,7 @@ type Mutation {
   ): RevealTopicPayload!
 
   """
-  ありたい姿投票フェーズを開始する
+  理想投票フェーズを開始する
   """
   startDesiredStateVoting(
     """
@@ -417,7 +417,7 @@ enum TopicStatusEnum {
   DESIRED_REVEALED
 
   """
-  ありたい姿投票中
+  理想投票中
   """
   DESIRED_VOTING
 

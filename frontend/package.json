@@ -38,6 +38,7 @@
     "@vitejs/plugin-vue": "^6.0.2",
     "@storybook/addon-essentials": "^8.1.7",
     "@storybook/vue3-vite": "^8.1.7",
+    "@types/node": "^22.10.1",
     "@vue/test-utils": "^2.4.6",
     "autoprefixer": "^10.4.20",
     "jsdom": "^25.0.1",

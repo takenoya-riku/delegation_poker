@@ -1,6 +1,6 @@
 module Mutations
   class StartDesiredStateVoting < BaseMutation
-    description "ありたい姿投票フェーズを開始する"
+    description "理想投票フェーズを開始する"
 
     argument :topic_id, ID, required: true, description: "トピックID"
 
