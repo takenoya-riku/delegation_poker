@@ -38,3 +38,9 @@ npm run lint:fix
 ```bash
 npm run test
 ```
+
+## Storybook
+
+```bash
+npm run storybook
+```
