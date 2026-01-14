@@ -40,6 +40,22 @@ describe('TopicOrganizeView', () => {
     expect(wrapper.text()).toContain('整理する対象がありません')
   })
 
+  it('ルームマスター以外は編集と削除を表示しない', () => {
+    const wrapper = mount(TopicOrganizeView, {
+      props: {
+        ...baseProps,
+        topics: [
+          { id: 't1', title: 'トピック1', description: null, status: 'ORGANIZING', participantId: 'p1' },
+        ],
+      },
+    })
+
+    expect(wrapper.findAll('button').some(button => button.text() === '編集')).toBe(false)
+    expect(wrapper.findAll('button').some(button => button.text() === '削除')).toBe(false)
+    expect(wrapper.text()).toContain('投票フェーズへの移行はルームマスターのみ可能です')
+    expect(wrapper.text()).toContain('ルームマスターのみ対象の編集と削除が可能です')
+  })
+
   it('投票フェーズへの移行で整理済みトピックを処理する', async () => {
     organizeTopicMock.mockResolvedValue({
       data: {

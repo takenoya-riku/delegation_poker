@@ -49,7 +49,10 @@
           <p class="text-xs text-gray-500 mb-4">
             作成者: {{ creatorName(topic) }}
           </p>
-          <div class="card-actions justify-end">
+          <div
+            v-if="props.isRoomMaster"
+            class="card-actions justify-end"
+          >
             <button
               class="btn btn-sm px-4 py-2 rounded-lg bg-white border-2 border-gray-300 text-gray-700 hover:border-gray-400 hover:bg-gray-50 transition-all duration-300 shadow-md hover:shadow-lg"
               @click="openEditModal(topic)"
@@ -68,6 +71,12 @@
               削除
             </button>
           </div>
+          <p
+            v-else
+            class="text-xs text-gray-500 mt-3"
+          >
+            ルームマスターのみ対象の編集と削除が可能です
+          </p>
         </div>
       </div>
     </div>
@@ -249,7 +258,7 @@ const closeEditModal = () => {
 const { updateTopic, deleteTopic, organizeTopic, revertToDraft } = useTopicActions()
 
 const handleDelete = async (topicId: string) => {
-  if (!props.currentParticipantId) return
+  if (!props.isRoomMaster || !props.currentParticipantId) return
   if (!confirm('このトピックを削除しますか？')) return
 
   deleting.value = true
@@ -265,7 +274,7 @@ const handleDelete = async (topicId: string) => {
 
 const handleUpdate = async () => {
   if (!editingTopic.value) return
-  if (!props.currentParticipantId) return
+  if (!props.isRoomMaster || !props.currentParticipantId) return
 
   updating.value = true
   const result = await updateTopic({
@@ -282,6 +291,7 @@ const handleUpdate = async () => {
 }
 
 const handleStartVoting = async () => {
+  if (!props.isRoomMaster) return
   starting.value = true
   // すべてのorganizingトピックに対してorganizeTopicを呼び出す
   const promises = organizingTopics.value.map(topic =>
@@ -293,6 +303,7 @@ const handleStartVoting = async () => {
 }
 
 const handleRevertToDraft = async () => {
+  if (!props.isRoomMaster) return
   if (organizingTopics.value.length === 0) return
   if (!confirm('整理フェーズを取り消して対象出しに戻しますか？')) return
 
