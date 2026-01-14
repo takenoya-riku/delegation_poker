@@ -253,16 +253,16 @@ const hasNoTopics = computed(() => {
 })
 
 const hasDraftTopics = computed(() => {
-  return room.value?.topics.some(t => t.status === 'DRAFT' || t.status === 'draft') || false
+  return room.value?.topics.some((t: { status: string }) => t.status === 'DRAFT' || t.status === 'draft') || false
 })
 
 const hasOrganizingTopics = computed(() => {
-  return room.value?.topics.some(t => t.status === 'ORGANIZING' || t.status === 'organizing') || false
+  return room.value?.topics.some((t: { status: string }) => t.status === 'ORGANIZING' || t.status === 'organizing') || false
 })
 
 const votingTopics = computed(() => {
   if (!room.value) return []
-  return room.value.topics.filter(t => {
+  return room.value.topics.filter((t: { status: string }) => {
     const status = t.status.toUpperCase()
     return ['CURRENT_VOTING', 'CURRENT_REVEALED', 'DESIRED_VOTING', 'DESIRED_REVEALED', 'COMPLETED'].includes(status) ||
            ['current_voting', 'current_revealed', 'desired_voting', 'desired_revealed', 'completed'].includes(t.status)

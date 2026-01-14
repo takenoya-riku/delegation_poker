@@ -31,3 +31,9 @@ npm run lint
 ```bash
 npm run lint:fix
 ```
+
+## テスト
+
+```bash
+npm run test
+```

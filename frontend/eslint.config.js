@@ -64,4 +64,16 @@ export default [
       },
     },
   },
+  {
+    files: ['tests/**/*.spec.ts'],
+    languageOptions: {
+      globals: {
+        beforeEach: 'readonly',
+        describe: 'readonly',
+        expect: 'readonly',
+        it: 'readonly',
+        vi: 'readonly',
+      },
+    },
+  },
 ]
